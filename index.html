@@ -1,0 +1,1904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Five Nights at School</title>
+<style>
+/* ============================================================
+   FIVE NIGHTS AT SCHOOL — styles
+   ============================================================ */
+:root{
+  --black:#050505;
+  --near-black:#0a0a0c;
+  --room-dark:#12100e;
+  --panel:#1b1815;
+  --amber:#e8b23d;
+  --amber-dim:#8a6a24;
+  --crt-green:#7fffb0;
+  --alert:#c23b3b;
+  --alert-bright:#ff4b4b;
+  --metal:#3a3d3f;
+  --metal-light:#5c6164;
+  --locker-blue:#2c4a5e;
+  --locker-red:#6e2c2c;
+  --paper:#d8cfa8;
+  --text-main:#e7dfc9;
+  --font-main: 'Courier New', Courier, monospace;
+}
+*{box-sizing:border-box;}
+html,body{
+  margin:0;padding:0;width:100%;height:100%;
+  background:#000;color:var(--text-main);
+  font-family:var(--font-main);
+  overflow:hidden;
+  -webkit-user-select:none;user-select:none;
+  -webkit-tap-highlight-color:transparent;
+}
+#app{
+  position:relative;width:100vw;height:100vh;min-height:100dvh;
+  overflow:hidden;background:#000;
+}
+
+/* ---------- generic screen system ---------- */
+.screen{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;
+  transition:opacity .7s ease;
+  background:#000;
+}
+.screen.active{opacity:1;pointer-events:auto;}
+.hidden{display:none !important;}
+
+/* ---------- CRT / atmosphere overlay ---------- */
+.crt-overlay{
+  position:absolute;inset:0;pointer-events:none;z-index:50;
+  background:repeating-linear-gradient(
+    to bottom, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 1px,
+    rgba(0,0,0,.18) 2px, rgba(0,0,0,0) 3px
+  );
+  mix-blend-mode:multiply;
+}
+.vignette{
+  position:absolute;inset:0;pointer-events:none;z-index:49;
+  background:radial-gradient(ellipse at center, rgba(0,0,0,0) 35%, rgba(0,0,0,.55) 78%, rgba(0,0,0,.92) 100%);
+}
+.flicker-layer{
+  position:absolute;inset:0;pointer-events:none;z-index:48;
+  background:#fff;opacity:0;
+  animation:roomFlicker 7s infinite;
+}
+@keyframes roomFlicker{
+  0%,100%{opacity:0;}
+  2%{opacity:.05;}
+  3%{opacity:0;}
+  46%{opacity:0;}
+  47%{opacity:.12;}
+  48%{opacity:0;}
+  71%{opacity:0;}
+  72%{opacity:.04;}
+  73%{opacity:0;}
+}
+.dust-layer{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:20;}
+.dust{
+  position:absolute;bottom:-10px;width:2px;height:2px;border-radius:50%;
+  background:rgba(232,178,61,.35);
+  animation:floatUp linear infinite;
+}
+@keyframes floatUp{
+  0%{transform:translate(0,0);opacity:0;}
+  10%{opacity:.5;}
+  90%{opacity:.3;}
+  100%{transform:translate(var(--dx,20px),-110vh);opacity:0;}
+}
+
+/* ============================================================
+   INTRO CREDITS
+   ============================================================ */
+#screen-intro{background:#000;}
+.intro-hall{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse at 50% 40%, rgba(80,70,40,.15), rgba(0,0,0,0) 60%),
+    linear-gradient(#0d0c0a,#000 80%);
+}
+.intro-hall::before{
+  content:'';position:absolute;left:50%;top:20%;width:1px;height:60%;
+  transform:translateX(-50%);
+  background:linear-gradient(to bottom, rgba(232,178,61,.25), transparent);
+}
+.intro-text{
+  position:relative;z-index:5;text-align:center;
+  opacity:0;transition:opacity 1.6s ease;
+}
+.intro-text.show{opacity:1;}
+.intro-title{
+  font-size:clamp(22px,5vw,44px);letter-spacing:6px;color:var(--text-main);
+  text-shadow:0 0 14px rgba(232,178,61,.35);
+}
+.intro-sub{
+  margin-top:14px;font-size:clamp(12px,2.4vw,18px);letter-spacing:10px;color:var(--amber-dim);
+}
+.skip-btn{
+  position:absolute;bottom:22px;right:26px;z-index:60;
+  background:transparent;border:1px solid rgba(232,178,61,.35);color:var(--amber-dim);
+  font-family:var(--font-main);font-size:12px;letter-spacing:2px;padding:8px 14px;
+  cursor:pointer;
+}
+.skip-btn:hover{color:var(--amber);border-color:var(--amber);}
+
+/* ============================================================
+   MAIN MENU
+   ============================================================ */
+#screen-menu{background:#000;}
+.hall-bg{
+  position:absolute;inset:0;overflow:hidden;
+  background:linear-gradient(#08090a,#000 85%);
+}
+.hall-perspective{
+  position:absolute;left:50%;top:0;bottom:0;width:140%;transform:translateX(-50%);
+  background:
+    linear-gradient(to bottom, rgba(70,80,90,.12), rgba(0,0,0,0) 40%),
+    repeating-linear-gradient(to bottom,
+      rgba(255,255,255,0) 0 6%,
+      rgba(255,255,255,0.02) 6% 6.4%,
+      rgba(255,255,255,0) 6.4% 12%);
+}
+.hall-floor{
+  position:absolute;left:0;right:0;bottom:0;height:38%;
+  background:linear-gradient(to top, #05040300, #14110c 40%, #221c14 100%);
+  clip-path:polygon(20% 100%,80% 100%,58% 0,42% 0);
+}
+.hall-ceiling{
+  position:absolute;left:0;right:0;top:0;height:22%;
+  background:linear-gradient(to bottom,#0c0c0c,#000);
+  clip-path:polygon(30% 0,70% 0,54% 100%,46% 100%);
+}
+.hall-wall-l,.hall-wall-r{
+  position:absolute;top:0;bottom:0;width:34%;
+  background:repeating-linear-gradient(90deg,#182226 0 18px,#1e2b30 18px 20px);
+}
+.hall-wall-l{left:0;clip-path:polygon(0 0,100% 8%,100% 92%,0 100%);}
+.hall-wall-r{right:0;clip-path:polygon(0 8%,100% 0,100% 100%,0 92%);}
+.hall-lockers{
+  position:absolute;left:0;right:0;bottom:34%;height:30%;
+  display:flex;gap:2px;padding:0 6%;
+  opacity:.55;
+}
+.locker{flex:1;background:linear-gradient(180deg,var(--locker-blue),#1b3140);border:1px solid #0c1a22;}
+.locker:nth-child(3n){background:linear-gradient(180deg,var(--locker-red),#421c1c);}
+.hall-light{
+  position:absolute;top:6%;width:10%;height:8px;left:50%;transform:translateX(-50%);
+  background:radial-gradient(ellipse, rgba(255,244,214,.9), rgba(255,244,214,0) 70%);
+  filter:blur(2px);
+  animation:lightBuzz 4s infinite;
+}
+@keyframes lightBuzz{
+  0%,100%{opacity:.9;} 48%{opacity:.9;} 50%{opacity:.2;} 52%{opacity:.85;} 74%{opacity:.85;} 75%{opacity:.3;} 77%{opacity:.9;}
+}
+.menu-fg{
+  position:relative;z-index:10;text-align:center;
+  padding:20px;
+}
+.game-title{
+  font-size:clamp(28px,7vw,64px);letter-spacing:4px;color:#efe6c9;
+  text-shadow:0 0 6px rgba(0,0,0,.8), 0 0 22px rgba(232,178,61,.35);
+  font-weight:bold;
+  animation:titleFlicker 6s infinite;
+}
+@keyframes titleFlicker{
+  0%,100%{opacity:1;} 41%{opacity:1;} 42%{opacity:.55;} 43%{opacity:1;} 88%{opacity:1;} 89%{opacity:.6;} 90%{opacity:1;}
+}
+.game-sub{
+  margin-top:10px;font-size:clamp(12px,2.2vw,16px);color:var(--amber-dim);letter-spacing:2px;font-style:italic;
+}
+.menu-buttons{
+  margin-top:44px;display:flex;flex-direction:column;gap:14px;align-items:center;
+}
+.menu-btn{
+  background:rgba(10,10,10,.55);border:1px solid rgba(232,178,61,.4);
+  color:var(--text-main);font-family:var(--font-main);letter-spacing:3px;
+  font-size:15px;padding:12px 34px;min-width:220px;cursor:pointer;
+  transition:all .2s ease;
+}
+.menu-btn:hover,.menu-btn:focus{
+  background:rgba(232,178,61,.12);color:var(--amber);border-color:var(--amber);
+  box-shadow:0 0 16px rgba(232,178,61,.25);
+}
+.menu-footer{margin-top:26px;font-size:11px;color:#5a5142;letter-spacing:1px;}
+
+/* panel screens (how to play / credits) */
+.panel-screen{background:#000;}
+.panel-box{
+  position:relative;z-index:5;max-width:640px;width:90%;max-height:82vh;overflow-y:auto;
+  background:rgba(10,9,7,.85);border:1px solid rgba(232,178,61,.3);padding:26px 28px;
+}
+.panel-box h2{letter-spacing:4px;color:var(--amber);font-size:20px;margin:0 0 16px;}
+.panel-box h3{letter-spacing:2px;color:var(--text-main);font-size:14px;margin:18px 0 6px;color:var(--amber-dim);}
+.panel-box p,.panel-box li{font-size:13px;line-height:1.7;color:#cfc6ab;}
+.panel-box ul{margin:6px 0;padding-left:20px;}
+.back-btn{
+  margin-top:20px;background:transparent;border:1px solid rgba(232,178,61,.4);color:var(--amber-dim);
+  font-family:var(--font-main);padding:9px 22px;letter-spacing:2px;cursor:pointer;
+}
+.back-btn:hover{color:var(--amber);border-color:var(--amber);}
+
+/* ============================================================
+   CINEMATIC SCREENS (opening sequence / ending)
+   ============================================================ */
+#screen-cinematic,#screen-ending{background:#000;}
+.cine-stage{position:absolute;inset:0;overflow:hidden;background:#000;}
+.cine-caption{
+  position:relative;z-index:10;text-align:center;padding:0 20px;
+  font-size:clamp(16px,3.6vw,26px);letter-spacing:2px;color:#efe6c9;
+  opacity:0;transition:opacity 1.2s ease;
+  text-shadow:0 0 10px rgba(0,0,0,.9);
+}
+.cine-caption.show{opacity:1;}
+.cine-time{
+  position:relative;z-index:10;font-size:clamp(26px,6vw,46px);letter-spacing:4px;color:var(--amber);
+  opacity:0;transition:opacity 1s ease;text-shadow:0 0 14px rgba(232,178,61,.4);
+}
+.cine-time.show{opacity:1;}
+
+.scene-hallway{
+  position:absolute;inset:0;
+  background:linear-gradient(#0a0908,#000 80%);
+}
+.scene-hallway .hall-perspective,.scene-hallway .hall-floor,.scene-hallway .hall-ceiling,
+.scene-hallway .hall-wall-l,.scene-hallway .hall-wall-r,.scene-hallway .hall-lockers{opacity:.8;}
+
+.scene-bathroom{position:absolute;inset:0;background:#0a0b0c;}
+.bathroom-tiles{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+  background-size:36px 36px;
+  background-color:#111417;
+}
+.stall-row{position:absolute;left:8%;right:8%;bottom:0;top:30%;display:flex;gap:10px;}
+.stall{flex:1;background:linear-gradient(180deg,#20323a,#101a1e);border:2px solid #060a0c;position:relative;}
+.stall::before{content:'';position:absolute;top:8%;bottom:8%;right:6px;width:4px;background:#050708;}
+.stall.player-stall{outline:1px solid rgba(232,178,61,.25);}
+.stall-door-shut{
+  position:absolute;inset:0;background:linear-gradient(180deg,#1b2b32,#0d1417);
+  transform-origin:left center; transition:transform 1.4s ease;
+}
+
+.scene-blackout{position:absolute;inset:0;background:#000;}
+.intercom-box{
+  position:relative;z-index:5;text-align:center;
+}
+.intercom-icon{
+  width:64px;height:64px;margin:0 auto 18px;border-radius:6px;
+  background:linear-gradient(180deg,#2a2a2a,#111);border:2px solid #444;
+  position:relative;
+}
+.intercom-icon::before{
+  content:'';position:absolute;left:50%;top:50%;width:34px;height:34px;
+  transform:translate(-50%,-50%);border-radius:50%;
+  background:repeating-radial-gradient(circle, #555 0 2px, #222 2px 4px);
+}
+.intercom-icon.live::after{
+  content:'';position:absolute;top:6px;right:6px;width:6px;height:6px;border-radius:50%;
+  background:var(--alert-bright);box-shadow:0 0 8px var(--alert-bright);
+  animation:pulseDot 1s infinite;
+}
+@keyframes pulseDot{0%,100%{opacity:1;}50%{opacity:.2;}}
+
+.scene-exterior{
+  position:absolute;inset:0;
+  background:linear-gradient(180deg,#050608 0%,#0a0d10 55%,#0f1215 100%);
+}
+.school-silhouette{
+  position:absolute;left:10%;right:10%;bottom:0;height:50%;
+  background:#000;
+  clip-path:polygon(0 100%,0 40%,15% 40%,15% 15%,30% 15%,30% 40%,70% 40%,70% 15%,85% 15%,85% 40%,100% 40%,100% 100%);
+}
+.school-silhouette .win{
+  position:absolute;width:3%;height:6%;background:rgba(232,178,61,.06);
+}
+.sunrise{
+  position:absolute;left:0;right:0;bottom:0;height:0%;
+  background:linear-gradient(to top, rgba(255,150,80,.5), rgba(255,150,80,0));
+  transition:height 6s ease;
+}
+.sunrise.up{height:35%;}
+
+/* ============================================================
+   SECURITY ROOM (gameplay)
+   ============================================================ */
+#screen-game{background:#000;}
+.room-wrap{position:absolute;inset:0;overflow:hidden;}
+.room-scene{
+  position:absolute;inset:0;
+  background:linear-gradient(180deg,#141210,#0a0908 70%,#060504);
+  filter:brightness(1);
+  transition:filter .25s ease;
+}
+.room-scene.flashlight-on{filter:brightness(1.55) contrast(1.05);}
+.room-scene.blackout{filter:brightness(.25) saturate(0.4);}
+.room-ceiling{
+  position:absolute;top:0;left:0;right:0;height:14%;
+  background:linear-gradient(180deg,#0c0b0a,#000);
+}
+.room-fl-light{
+  position:absolute;top:3%;left:30%;width:40%;height:6px;
+  background:linear-gradient(90deg, rgba(255,244,214,0), rgba(255,244,214,.85), rgba(255,244,214,0));
+  filter:blur(1px);
+  animation:lightBuzz 5s infinite;
+}
+.room-back-wall{
+  position:absolute;top:14%;left:0;right:0;bottom:38%;
+  background:
+    linear-gradient(180deg, rgba(60,70,55,.12), rgba(0,0,0,0) 50%),
+    linear-gradient(#1a2a30,#101c20 60%,#0b1416);
+}
+.room-lockers{
+  position:absolute;left:2%;top:20%;bottom:0;width:16%;
+  display:flex;flex-direction:column;gap:2px;
+}
+.room-lockers .locker{flex:1;}
+.room-vent{
+  position:absolute;right:4%;top:16%;width:15%;height:16%;
+  background:linear-gradient(180deg,#2a2c2d,#101112);
+  border:2px solid #000;
+  background-image:repeating-linear-gradient(0deg, rgba(0,0,0,.6) 0 3px, transparent 3px 9px);
+}
+.warning-sign{
+  position:absolute;top:22%;left:44%;width:60px;height:60px;
+  background:#c99a1f;clip-path:polygon(50% 0,100% 100%,0 100%);
+  display:flex;align-items:flex-end;justify-content:center;padding-bottom:4px;
+  font-size:9px;color:#1a1200;font-weight:bold;letter-spacing:1px;text-align:center;
+  opacity:.85;
+}
+.wall-clock{
+  position:absolute;top:16%;right:20%;width:64px;height:64px;border-radius:50%;
+  background:radial-gradient(circle,#e9e1c5,#c9c19f 80%);border:3px solid #2a2620;
+}
+.wall-clock .hand{position:absolute;left:50%;top:50%;transform-origin:0 0;background:#161200;}
+.wall-clock .hand.hh{width:2px;height:16px;transform:translate(-1px,-16px) rotate(0deg);}
+.wall-clock .hand.mm{width:1.5px;height:22px;transform:translate(-.75px,-22px) rotate(0deg);}
+
+.room-door-frame{
+  position:absolute;right:0;top:14%;bottom:38%;width:9%;
+  background:linear-gradient(90deg,#050505,#0d0d0d);
+  border-left:3px solid #000;
+  overflow:hidden;
+}
+.room-door-frame .door-glow{
+  position:absolute;inset:0;background:radial-gradient(circle at 50% 60%, rgba(194,59,59,.0), transparent 70%);
+  transition:background .4s ease;
+}
+.room-door-frame.threat .door-glow{
+  background:radial-gradient(circle at 50% 60%, rgba(194,59,59,.35), transparent 70%);
+}
+.door-figure{
+  position:absolute;left:50%;bottom:0;width:70%;height:88%;
+  transform:translateX(-50%);
+  background:#000;
+  clip-path:polygon(35% 0%,65% 0%,78% 12%,70% 30%,85% 38%,100% 100%,0% 100%,15% 38%,30% 30%,22% 12%);
+  opacity:0;transition:opacity .5s ease;
+  box-shadow:0 0 20px 4px rgba(0,0,0,.6) inset;
+}
+.room-door-frame.threat .door-figure{opacity:.28;}
+.room-scene.flashlight-on .room-door-frame.threat .door-figure{opacity:1;}
+
+.room-desk{
+  position:absolute;left:0;right:0;bottom:0;height:38%;
+  background:linear-gradient(180deg,#3a2a1c,#1c130c);
+  clip-path:polygon(0 30%,100% 30%,100% 100%,0 100%);
+}
+.room-desk::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:14%;
+  background:linear-gradient(180deg,#5a4028,#3a2a1c);
+}
+.desk-papers{
+  position:absolute;left:6%;bottom:26%;width:14%;height:10%;
+  background:var(--paper);transform:rotate(-4deg);box-shadow:2px 2px 0 rgba(0,0,0,.4);
+}
+.desk-papers::after{
+  content:'';position:absolute;left:20%;top:60%;width:16%;height:16%;background:var(--paper);
+  transform:rotate(10deg);box-shadow:2px 2px 0 rgba(0,0,0,.4);
+}
+.desk-mug{
+  position:absolute;left:24%;bottom:27%;width:3%;height:6%;background:#4a4a4a;border-radius:2px 2px 4px 4px;
+}
+.desk-toolbox{
+  position:absolute;right:8%;bottom:26%;width:10%;height:7%;background:linear-gradient(180deg,#8a3030,#4a1414);
+  border:1px solid #200a0a;
+}
+
+.crt-monitor-shell{
+  position:absolute;left:38%;bottom:20%;width:26%;min-width:180px;height:26%;
+  background:#1a1712;border:6px solid #100e0a;border-radius:8px;
+  box-shadow:0 8px 30px rgba(0,0,0,.7);
+}
+.crt-monitor-screen{
+  position:absolute;inset:8%;background:#02120a;overflow:hidden;border-radius:3px;
+}
+.crt-monitor-screen .mini-static{position:absolute;inset:0;opacity:.5;}
+.crt-monitor-label{
+  position:absolute;bottom:-22px;left:0;right:0;text-align:center;font-size:9px;color:#6a5c3a;letter-spacing:2px;
+}
+
+.room-controls{
+  position:absolute;left:0;right:0;bottom:0;
+  display:flex;justify-content:center;gap:14px;padding:14px 10px calc(14px + env(safe-area-inset-bottom));
+  z-index:30;
+  background:linear-gradient(0deg, rgba(0,0,0,.75), rgba(0,0,0,0));
+}
+.ctrl-btn{
+  background:rgba(15,13,10,.85);border:1px solid rgba(232,178,61,.4);color:var(--text-main);
+  font-family:var(--font-main);letter-spacing:2px;font-size:13px;padding:12px 20px;
+  cursor:pointer;min-width:120px;text-align:center;transition:all .15s ease;
+  touch-action:manipulation;
+}
+.ctrl-btn:hover{border-color:var(--amber);color:var(--amber);}
+.ctrl-btn:active,.ctrl-btn.engaged{background:rgba(232,178,61,.22);color:var(--amber);border-color:var(--amber);}
+.ctrl-btn:disabled{opacity:.35;cursor:not-allowed;}
+
+.hud{
+  position:absolute;top:0;left:0;right:0;z-index:30;
+  display:flex;justify-content:space-between;align-items:flex-start;
+  padding:14px 16px;pointer-events:none;
+}
+.hud-left,.hud-right{display:flex;flex-direction:column;gap:6px;}
+.hud-item{
+  font-size:12px;letter-spacing:2px;color:var(--amber);
+  background:rgba(0,0,0,.4);padding:4px 10px;border:1px solid rgba(232,178,61,.25);
+}
+.hud-power-bar{
+  width:120px;height:8px;background:rgba(255,255,255,.08);border:1px solid rgba(232,178,61,.3);margin-top:2px;
+}
+.hud-power-fill{height:100%;background:linear-gradient(90deg,#e8b23d,#f2d27b);width:100%;transition:width .3s linear, background .3s;}
+.hud-power-fill.low{background:linear-gradient(90deg,#c23b3b,#ff7a4b);}
+.hud-night{font-size:13px;letter-spacing:3px;color:#efe6c9;}
+.hud-threat{
+  align-self:center;margin-top:2px;font-size:11px;letter-spacing:2px;color:var(--alert-bright);
+  opacity:0;transition:opacity .3s ease;text-shadow:0 0 8px rgba(194,59,59,.7);
+}
+.hud-threat.show{opacity:1;animation:threatPulse 1s infinite;}
+@keyframes threatPulse{0%,100%{opacity:1;}50%{opacity:.45;}}
+
+.flash-overlay{
+  position:absolute;inset:0;background:radial-gradient(circle at 50% 65%, rgba(255,244,214,.18), transparent 65%);
+  opacity:0;pointer-events:none;transition:opacity .2s ease;z-index:15;
+}
+.flash-overlay.on{opacity:1;}
+
+/* ============================================================
+   CAMERA MONITOR OVERLAY
+   ============================================================ */
+#camMonitor{
+  position:absolute;inset:0;z-index:60;background:#000;
+  display:flex;flex-direction:column;
+  opacity:0;pointer-events:none;transition:opacity .25s ease;
+}
+#camMonitor.open{opacity:1;pointer-events:auto;}
+.monitor-frame{
+  position:relative;flex:1;display:flex;flex-direction:column;
+  background:#000;
+  border:10px solid #0c0c0c;
+  box-shadow:inset 0 0 60px rgba(0,0,0,.9);
+}
+.monitor-topbar{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:8px 14px;font-size:11px;letter-spacing:2px;color:var(--crt-green);
+  text-shadow:0 0 6px rgba(127,255,176,.6);
+  background:linear-gradient(180deg, rgba(0,20,10,.6), transparent);
+  z-index:5;
+}
+.rec-dot{
+  display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--alert-bright);
+  margin-right:6px;animation:pulseDot 1s infinite;
+}
+.cam-feed-wrap{
+  position:relative;flex:1;overflow:hidden;background:#000;
+}
+.cam-scene{
+  position:absolute;inset:0;opacity:0;transition:opacity .15s ease;
+}
+.cam-scene.active{opacity:1;}
+.cam-feed-static{position:absolute;inset:0;z-index:40;opacity:0;pointer-events:none;}
+.cam-feed-static.show{opacity:.9;}
+.cam-signal-lost{
+  position:absolute;inset:0;z-index:45;display:flex;align-items:center;justify-content:center;
+  background:#000;opacity:0;pointer-events:none;transition:opacity .2s ease;
+  font-size:clamp(16px,3vw,26px);letter-spacing:4px;color:#666;
+}
+.cam-signal-lost.show{opacity:1;}
+.cam-label-box{
+  position:absolute;bottom:10px;left:10px;z-index:20;font-size:11px;letter-spacing:2px;color:var(--crt-green);
+  text-shadow:0 0 6px rgba(127,255,176,.6);
+}
+.cam-clock{
+  position:absolute;bottom:10px;right:10px;z-index:20;font-size:11px;letter-spacing:1px;color:var(--crt-green);
+  text-shadow:0 0 6px rgba(127,255,176,.6);
+}
+.monitor-scanlines{
+  position:absolute;inset:0;z-index:30;pointer-events:none;
+  background:repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0 2px, rgba(0,0,0,.22) 2px 4px);
+}
+.monitor-noise-flicker{
+  position:absolute;inset:0;z-index:25;pointer-events:none;background:#fff;opacity:0;
+  animation:monFlicker 5.5s infinite;
+}
+@keyframes monFlicker{
+  0%,100%{opacity:0;}62%{opacity:0;}63%{opacity:.06;}64%{opacity:0;}91%{opacity:0;}92%{opacity:.09;}93%{opacity:0;}
+}
+
+/* generic scene furniture */
+.floor-plane{position:absolute;left:0;right:0;bottom:0;height:44%;}
+.ceiling-plane{position:absolute;left:0;right:0;top:0;height:18%;background:linear-gradient(#050505,#000);}
+.back-wall{position:absolute;left:0;right:0;top:18%;bottom:44%;}
+.persp-window{
+  position:absolute;top:14%;width:9%;height:34%;
+  background:linear-gradient(180deg,#0d1a26,#040810);
+  border:3px solid #1a1a1a;
+}
+.persp-window::after{
+  content:'';position:absolute;left:50%;top:0;bottom:0;width:2px;background:#1a1a1a;
+}
+.moon{position:absolute;width:14px;height:14px;border-radius:50%;background:#dcd6b8;box-shadow:0 0 10px rgba(220,214,184,.5);}
+
+.scene-c1 .floor-plane{background:linear-gradient(#241d14,#0d0a06);clip-path:polygon(18% 100%,82% 100%,58% 0,42% 0);}
+.scene-c1 .back-wall{background:repeating-linear-gradient(90deg,#182226 0 30px,#1e2b30 30px 32px);}
+.scene-c1 .lockrow{position:absolute;bottom:44%;left:6%;right:6%;height:24%;display:flex;gap:2px;}
+.scene-c1 .lockrow .locker{flex:1;}
+
+.scene-c2 .floor-plane{background:linear-gradient(#1c1a14,#0a0906);}
+.scene-c2 .cafe-table{
+  position:absolute;bottom:8%;width:16%;height:9%;background:linear-gradient(#5a4a30,#2a2010);
+  border:1px solid #100c06;
+}
+.scene-c2 .back-wall{background:linear-gradient(#151a1a,#0a0d0d);}
+
+.scene-c3 .floor-plane{background:linear-gradient(#241f1a,#0f0c09);}
+.scene-c3 .court-circle{
+  position:absolute;bottom:6%;left:50%;width:120px;height:60px;transform:translateX(-50%);
+  border:2px solid rgba(230,220,190,.25);border-radius:50%;
+}
+.scene-c3 .hoop{
+  position:absolute;top:20%;left:50%;transform:translateX(-50%);width:50px;height:36px;
+}
+.scene-c3 .hoop::before{content:'';position:absolute;top:0;left:0;right:0;height:6px;background:#c9c9c9;}
+.scene-c3 .hoop::after{content:'';position:absolute;top:6px;left:8px;right:8px;bottom:0;border:2px solid #d9822b;border-top:none;}
+.scene-c3 .back-wall{background:linear-gradient(#141712,#0a0b08);}
+.scene-c3 .bleachers{position:absolute;left:0;bottom:44%;width:14%;height:26%;background:repeating-linear-gradient(180deg,#2a2a24 0 5px,#161612 5px 10px);}
+
+.scene-c4 .floor-plane{background:linear-gradient(#1a1e1c,#090a09);}
+.scene-c4 .lab-table{
+  position:absolute;bottom:10%;width:20%;height:8%;background:#2c3630;border:1px solid #0a0f0c;
+}
+.scene-c4 .lab-table::after{content:'';position:absolute;top:-40%;left:10%;width:6%;height:40%;background:#3d4a42;}
+.scene-c4 .back-wall{background:linear-gradient(#151915,#080a08);}
+.scene-c4 .cabinet{position:absolute;top:20%;width:8%;height:22%;background:#22281f;border:1px solid #0a0d08;}
+
+.scene-c5 .floor-plane{background:linear-gradient(#1c160f,#0a0805);}
+.scene-c5 .shelf{
+  position:absolute;top:20%;bottom:44%;width:9%;
+  background:#241a10;border:1px solid #100b06;
+  display:flex;flex-direction:column;justify-content:space-around;padding:4% 6%;
+}
+.scene-c5 .shelf span{display:block;height:10%;background:#7a5a30;}
+.scene-c5 .shelf span:nth-child(2n){background:#5a3a2a;}
+.scene-c5 .shelf span:nth-child(3n){background:#8a6a3a;}
+.scene-c5 .back-wall{background:linear-gradient(#161310,#0a0806);}
+
+.scene-c6 .floor-plane,.scene-c7 .floor-plane{background:linear-gradient(#221c14,#0d0a06);clip-path:polygon(18% 100%,82% 100%,58% 0,42% 0);}
+.scene-c6 .back-wall,.scene-c7 .back-wall{background:repeating-linear-gradient(90deg,#1c1c22 0 30px,#22222c 30px 32px);}
+
+.scene-c8 .floor-plane{
+  background-color:#101417;
+  background-image:linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+  background-size:34px 34px;
+}
+.scene-c8 .back-wall{background:linear-gradient(#12181a,#080b0c);}
+.scene-c8 .stallwall{position:absolute;bottom:44%;left:10%;right:10%;height:26%;display:flex;gap:8px;}
+.scene-c8 .stallwall span{flex:1;background:linear-gradient(#233238,#111a1d);border:1px solid #060a0b;}
+
+.scene-c9 .floor-plane{background:linear-gradient(#1c1a16,#0a0907);}
+.scene-c9 .desk-row{position:absolute;bottom:8%;display:flex;gap:6px;}
+.scene-c9 .desk-row span{width:22px;height:16px;background:#3a3020;border:1px solid #100d06;}
+.scene-c9 .whiteboard{position:absolute;top:22%;left:20%;width:60%;height:16%;background:#e8e6de;opacity:.15;border:2px solid #444;}
+.scene-c9 .back-wall{background:linear-gradient(#171512,#0a0908);}
+
+.scene-c10 .floor-plane{background:linear-gradient(#221c14,#0d0a06);}
+.scene-c10 .counter{position:absolute;bottom:14%;left:10%;right:10%;height:14%;background:linear-gradient(#4a3a24,#241a0e);border:1px solid #100b06;}
+.scene-c10 .mailslots{position:absolute;top:22%;left:16%;width:26%;height:18%;background:#20180e;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(2,1fr);gap:2px;padding:3px;}
+.scene-c10 .mailslots span{background:#332616;}
+.scene-c10 .back-wall{background:linear-gradient(#171310,#080605);}
+
+.cam-occupants{position:absolute;inset:0;z-index:15;}
+.teacher-figure{
+  position:absolute;bottom:6%;left:50%;width:15%;max-width:76px;
+  aspect-ratio:1/2.5;transform:translateX(-50%);
+  background:#000;
+  clip-path:polygon(35% 0%,65% 0%,78% 12%,70% 30%,85% 38%,100% 100%,0% 100%,15% 38%,30% 30%,22% 12%);
+  box-shadow:0 0 24px 6px rgba(0,0,0,.7) inset;
+}
+.teacher-figure::after{
+  content:'';position:absolute;inset:0;clip-path:inherit;
+  box-shadow:inset 0 0 0 2px var(--tcolor,#888);opacity:.55;
+}
+.teacher-figure.pose-still{animation:tSway 3s ease-in-out infinite;}
+.teacher-figure.pose-bounce{animation:tBounce 1s ease-in-out infinite;}
+.teacher-figure.pose-flicker{animation:tFlicker 1.4s steps(2) infinite;}
+.teacher-figure.pose-elusive{opacity:.7;animation:tSway 4s ease-in-out infinite;}
+.teacher-figure.pose-ominous{animation:tTilt 5s ease-in-out infinite;}
+@keyframes tSway{0%,100%{transform:translateX(-50%) rotate(0deg);}50%{transform:translateX(-50%) rotate(1.5deg);}}
+@keyframes tBounce{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(-4px);}}
+@keyframes tFlicker{0%,100%{opacity:1;}50%{opacity:.3;}}
+@keyframes tTilt{0%,100%{transform:translateX(-50%) rotate(0deg);}50%{transform:translateX(-50%) rotate(-3deg);}}
+
+.monitor-map{
+  padding:10px 12px calc(10px + env(safe-area-inset-bottom));
+  background:#050505;border-top:2px solid #111;
+  display:grid;grid-template-columns:repeat(5,1fr);gap:6px;
+  z-index:5;
+}
+.map-btn{
+  background:#0d0d0d;border:1px solid #262626;color:#8a8a8a;
+  font-family:var(--font-main);font-size:9px;letter-spacing:1px;
+  padding:8px 2px;cursor:pointer;text-align:center;line-height:1.5;
+}
+.map-btn.current{border-color:var(--crt-green);color:var(--crt-green);box-shadow:0 0 8px rgba(127,255,176,.3);}
+.map-btn.lost{color:#5a2020;border-color:#3a1414;}
+.cam-close-btn{
+  position:absolute;top:8px;right:10px;z-index:10;
+  background:rgba(0,0,0,.5);border:1px solid rgba(127,255,176,.4);color:var(--crt-green);
+  font-family:var(--font-main);font-size:11px;padding:6px 12px;letter-spacing:2px;cursor:pointer;
+}
+
+/* ============================================================
+   JUMPSCARE / GAME OVER
+   ============================================================ */
+#screen-jumpscare{background:#000;}
+.scare-flash{
+  position:absolute;inset:0;background:#fff;opacity:0;
+}
+.scare-flash.go{animation:scareFlashAnim .5s steps(3) 1;}
+@keyframes scareFlashAnim{0%{opacity:0;}20%{opacity:1;}40%{opacity:0;}60%{opacity:.8;}80%{opacity:0;}100%{opacity:0;}}
+.scare-figure{
+  position:absolute;left:50%;bottom:0;width:38%;max-width:280px;height:78%;
+  transform:translateX(-50%) scale(.4);opacity:0;
+  background:radial-gradient(ellipse at 50% 22%, var(--tcolor,#c23b3b) 0%, rgba(0,0,0,.85) 65%);
+  clip-path:polygon(35% 0%,65% 0%,78% 12%,70% 30%,85% 38%,100% 100%,0% 100%,15% 38%,30% 30%,22% 12%);
+  box-shadow:0 0 70px 20px var(--tcolor,#c23b3b);
+}
+.scare-figure::after{
+  content:'';position:absolute;inset:0;clip-path:inherit;
+  background:
+    radial-gradient(circle at 38% 15%, #fff 0 3px, transparent 5px),
+    radial-gradient(circle at 62% 15%, #fff 0 3px, transparent 5px);
+  filter:drop-shadow(0 0 8px #fff);
+}
+.scare-figure.go{animation:scareZoom .45s ease-out forwards;}
+@keyframes scareZoom{0%{transform:translateX(-50%) scale(.3);opacity:0;}60%{opacity:1;}100%{transform:translateX(-50%) scale(1.05);opacity:1;}}
+.shake{animation:screenShake .4s linear;}
+@keyframes screenShake{
+  0%,100%{transform:translate(0,0);}10%{transform:translate(-8px,4px);}20%{transform:translate(7px,-5px);}
+  30%{transform:translate(-6px,6px);}40%{transform:translate(8px,2px);}50%{transform:translate(-5px,-6px);}
+  60%{transform:translate(6px,5px);}70%{transform:translate(-7px,-3px);}80%{transform:translate(5px,4px);}90%{transform:translate(-4px,-2px);}
+}
+.caught-text{
+  position:relative;z-index:10;text-align:center;opacity:0;transition:opacity .8s ease;
+}
+.caught-text.show{opacity:1;}
+.caught-title{font-size:clamp(30px,7vw,58px);letter-spacing:6px;color:var(--alert-bright);text-shadow:0 0 20px rgba(194,59,59,.6);}
+.caught-sub{margin-top:12px;font-size:14px;letter-spacing:2px;color:var(--amber-dim);font-style:italic;}
+.caught-buttons{margin-top:32px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+
+/* ============================================================
+   NIGHT COMPLETE
+   ============================================================ */
+#screen-victory{background:#000;}
+.victory-box{text-align:center;opacity:0;transition:opacity 1s ease;}
+.victory-box.show{opacity:1;}
+.victory-time{font-size:clamp(24px,5vw,40px);letter-spacing:4px;color:var(--amber);margin-bottom:10px;}
+.victory-msg{font-size:clamp(18px,4vw,30px);letter-spacing:3px;color:#efe6c9;}
+.victory-night{margin-top:22px;font-size:14px;letter-spacing:3px;color:var(--amber-dim);}
+
+/* shared buttons for scare/victory screens */
+.big-btn{
+  background:rgba(10,10,10,.6);border:1px solid rgba(232,178,61,.4);color:var(--text-main);
+  font-family:var(--font-main);letter-spacing:2px;font-size:14px;padding:12px 26px;cursor:pointer;
+}
+.big-btn:hover{background:rgba(232,178,61,.14);color:var(--amber);border-color:var(--amber);}
+
+/* responsive */
+@media (max-width:640px){
+  .room-controls{gap:8px;}
+  .ctrl-btn{padding:11px 14px;min-width:92px;font-size:11px;}
+  .hud-item{font-size:10px;padding:3px 7px;}
+  .hud-power-bar{width:84px;}
+  .crt-monitor-shell{left:30%;width:40%;bottom:22%;height:22%;}
+  .panel-box{padding:18px 16px;}
+  .monitor-topbar{padding-right:78px;font-size:9px;}
+  .cam-close-btn{top:6px;right:6px;padding:5px 9px;font-size:9px;}
+  .monitor-map{grid-template-columns:repeat(2,1fr);}
+}
+@media (max-height:480px){
+  .menu-buttons{margin-top:20px;gap:8px;}
+  .menu-btn{padding:8px 22px;font-size:13px;}
+}
+canvas.noise-canvas{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ================= INTRO CREDITS ================= -->
+  <div id="screen-intro" class="screen active">
+    <div class="intro-hall"></div>
+    <div class="dust-layer" id="dustIntro"></div>
+    <div class="intro-text" id="introText1">
+      <div class="intro-title">WEDDINGTON MIDDLE SCHOOL</div>
+    </div>
+    <div class="intro-text" id="introText2" style="position:absolute;">
+      <div class="intro-sub">AFTER HOURS</div>
+    </div>
+    <button class="skip-btn" id="skipIntroBtn">SKIP &gt;</button>
+    <div class="crt-overlay"></div><div class="vignette"></div>
+  </div>
+
+  <!-- ================= MAIN MENU ================= -->
+  <div id="screen-menu" class="screen">
+    <div class="hall-bg">
+      <div class="hall-perspective">
+        <div class="hall-ceiling"></div>
+        <div class="hall-floor"></div>
+        <div class="hall-wall-l"></div>
+        <div class="hall-wall-r"></div>
+        <div class="hall-lockers" id="menuLockers"></div>
+        <div class="hall-light"></div>
+      </div>
+    </div>
+    <div class="dust-layer" id="dustMenu"></div>
+    <div class="menu-fg">
+      <div class="game-title">FIVE NIGHTS AT SCHOOL</div>
+      <div class="game-sub">&ldquo;You should&rsquo;ve stayed in class.&rdquo;</div>
+      <div class="menu-buttons">
+        <button class="menu-btn" id="btnNewGame">NEW GAME</button>
+        <button class="menu-btn" id="btnHowTo">HOW TO PLAY</button>
+        <button class="menu-btn" id="btnCredits">CREDITS</button>
+      </div>
+      <div class="menu-footer" id="menuProgress"></div>
+    </div>
+    <div class="crt-overlay"></div><div class="vignette"></div><div class="flicker-layer"></div>
+  </div>
+
+  <!-- ================= HOW TO PLAY ================= -->
+  <div id="screen-howto" class="screen panel-screen">
+    <div class="hall-bg"><div class="hall-perspective"><div class="hall-ceiling"></div><div class="hall-floor"></div></div></div>
+    <div class="panel-box">
+      <h2>HOW TO PLAY</h2>
+      <p>You are hiding inside Weddington Middle School after hours. You must survive from <strong>12:00 AM</strong> until <strong>6:00 AM</strong> for five nights.</p>
+      <h3>SECURITY CAMERAS</h3>
+      <p>Press CAMERAS to open the monitor and check the ten camera feeds around the school. Watching the cameras is the only way to track where the teachers are.</p>
+      <h3>THE TEACHERS</h3>
+      <p>Five teachers patrol the halls looking for students. Each one moves differently &mdash; learn their patterns. If a teacher reaches the door outside the security room, you must catch them with your flashlight in time or they will get in.</p>
+      <h3>FLASHLIGHT</h3>
+      <p>Hold FLASHLIGHT to light up the doorway. If someone is standing there, keep the light on them to scare them off. It also drains power.</p>
+      <h3>POWER</h3>
+      <p>Everything you use drains the school&rsquo;s backup power. If it runs out, the lights die and you become far more vulnerable. Use your systems wisely.</p>
+      <h3>SURVIVE</h3>
+      <p>Reach 6:00 AM without being caught. Good luck.</p>
+      <button class="back-btn" id="backFromHowTo">&lt; BACK</button>
+    </div>
+  </div>
+
+  <!-- ================= CREDITS ================= -->
+  <div id="screen-credits" class="screen panel-screen">
+    <div class="hall-bg"><div class="hall-perspective"><div class="hall-ceiling"></div><div class="hall-floor"></div></div></div>
+    <div class="panel-box">
+      <h2>CREDITS</h2>
+      <p>FIVE NIGHTS AT SCHOOL</p>
+      <p>An original fan-made horror survival game.</p>
+      <p>All characters, locations, story, art, mechanics and sound are original creations, inspired by classic security-camera survival horror games.</p>
+      <p style="margin-top:20px;">Weddington Middle School is a fictional setting.</p>
+      <p style="margin-top:20px;">Thank you for playing.</p>
+      <button class="back-btn" id="backFromCredits">&lt; BACK</button>
+    </div>
+  </div>
+
+  <!-- ================= OPENING CINEMATIC ================= -->
+  <div id="screen-cinematic" class="screen">
+    <div class="cine-stage" id="cineStage"></div>
+    <div id="cineCaptionWrap" style="position:relative;z-index:10;text-align:center;"></div>
+    <button class="skip-btn" id="skipCineBtn">SKIP &gt;</button>
+    <div class="crt-overlay"></div><div class="vignette"></div>
+  </div>
+
+  <!-- ================= GAMEPLAY: SECURITY ROOM ================= -->
+  <div id="screen-game" class="screen">
+    <div class="room-wrap">
+      <div class="room-scene" id="roomScene">
+        <div class="room-ceiling"></div>
+        <div class="room-fl-light"></div>
+        <div class="room-back-wall"></div>
+        <div class="room-lockers" id="roomLockers"></div>
+        <div class="room-vent"></div>
+        <div class="warning-sign">CAUTION</div>
+        <div class="wall-clock" id="wallClock"><div class="hand hh" id="clockHH"></div><div class="hand mm" id="clockMM"></div></div>
+        <div class="room-door-frame" id="doorFrame">
+          <div class="door-glow"></div>
+          <div class="door-figure" id="doorFigure"></div>
+        </div>
+        <div class="room-desk">
+          <div class="desk-papers"></div>
+          <div class="desk-mug"></div>
+          <div class="desk-toolbox"></div>
+          <div class="crt-monitor-shell">
+            <div class="crt-monitor-screen"><canvas class="noise-canvas mini-static" id="miniStatic"></canvas></div>
+            <div class="crt-monitor-label">SECURITY MONITOR</div>
+          </div>
+        </div>
+      </div>
+      <div class="flash-overlay" id="flashOverlay"></div>
+      <div class="crt-overlay"></div><div class="vignette"></div><div class="flicker-layer" id="roomFlickerLayer"></div>
+    </div>
+
+    <div class="hud">
+      <div class="hud-left">
+        <div class="hud-item" id="hudNight">NIGHT 1</div>
+        <div class="hud-item" id="hudClock">12:00 AM</div>
+      </div>
+      <div class="hud-right" style="align-items:flex-end;">
+        <div class="hud-item">POWER: <span id="hudPowerText">100</span>%
+          <div class="hud-power-bar"><div class="hud-power-fill" id="hudPowerFill"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="hud-threat" id="hudThreat">SOMETHING IS AT THE DOOR</div>
+
+    <div class="room-controls">
+      <button class="ctrl-btn" id="btnCameras">CAMERAS</button>
+      <button class="ctrl-btn" id="btnFlashlight">FLASHLIGHT</button>
+    </div>
+
+    <!-- ===== Camera Monitor Overlay ===== -->
+    <div id="camMonitor">
+      <div class="monitor-frame">
+        <div class="monitor-topbar">
+          <span><span class="rec-dot"></span>SECURITY SYSTEM</span>
+          <span id="monitorCamLabel">CAM 01 &mdash; MAIN HALL</span>
+          <span id="monitorClock">12:00 AM</span>
+        </div>
+        <div class="cam-feed-wrap" id="camFeedWrap">
+          <!-- 10 camera scenes injected by JS -->
+          <canvas class="noise-canvas cam-feed-static" id="camStaticCanvas"></canvas>
+          <div class="cam-signal-lost" id="camSignalLost">SIGNAL LOST</div>
+          <div class="monitor-noise-flicker"></div>
+          <div class="monitor-scanlines"></div>
+        </div>
+        <button class="cam-close-btn" id="btnCloseCam">CLOSE ✕</button>
+        <div class="monitor-map" id="monitorMap"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= JUMPSCARE / GAME OVER ================= -->
+  <div id="screen-jumpscare" class="screen">
+    <div class="scare-flash" id="scareFlash"></div>
+    <div class="scare-figure" id="scareFigure"></div>
+    <div class="caught-text" id="caughtText">
+      <div class="caught-title">CAUGHT.</div>
+      <div class="caught-sub">You should&rsquo;ve stayed in class.</div>
+      <div class="caught-buttons">
+        <button class="big-btn" id="btnTryAgain">TRY AGAIN</button>
+        <button class="big-btn" id="btnScareMenu">MAIN MENU</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= NIGHT COMPLETE ================= -->
+  <div id="screen-victory" class="screen">
+    <div class="victory-box" id="victoryBox">
+      <div class="victory-time">6:00 AM</div>
+      <div class="victory-msg">YOU SURVIVED.</div>
+      <div class="victory-night" id="victoryNightLabel">NIGHT 1 COMPLETE</div>
+      <div style="margin-top:30px;">
+        <button class="big-btn" id="btnContinueNight">CONTINUE</button>
+      </div>
+    </div>
+    <div class="crt-overlay"></div><div class="vignette"></div>
+  </div>
+
+  <!-- ================= ENDING ================= -->
+  <div id="screen-ending" class="screen">
+    <div class="cine-stage" id="endingStage"></div>
+    <div id="endingCaptionWrap" style="position:relative;z-index:10;text-align:center;"></div>
+    <div class="crt-overlay"></div><div class="vignette"></div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+function $(sel){return document.querySelector(sel);}
+function $id(id){return document.getElementById(id);}
+function rand(min,max){return Math.random()*(max-min)+min;}
+function randInt(min,max){return Math.floor(rand(min,max+1));}
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+function clamp(v,min,max){return Math.max(min,Math.min(max,v));}
+
+let fastForward=false;
+function wait(ms){
+  return new Promise(res=>{
+    if(fastForward) return res();
+    const start=performance.now();
+    (function frame(){
+      if(fastForward || performance.now()-start>=ms) return res();
+      requestAnimationFrame(frame);
+    })();
+  });
+}
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el = $id(id);
+  if(el) el.classList.add('active');
+}
+
+/* ============================================================
+   AUDIO ENGINE (fully synthesized, no external files)
+   ============================================================ */
+const Audio_ = (function(){
+  let ctx=null, unlocked=false;
+  let humOsc=null, humGain=null;
+  let noiseBuffer=null;
+
+  function ensure(){
+    if(!ctx){
+      try{ ctx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ ctx=null; }
+    }
+    if(ctx && ctx.state==='suspended'){ ctx.resume().catch(()=>{}); }
+    return ctx;
+  }
+  function unlock(){
+    if(unlocked) return;
+    unlocked=true;
+    ensure();
+  }
+  function getNoiseBuffer(){
+    if(!ctx) return null;
+    if(noiseBuffer) return noiseBuffer;
+    const len = ctx.sampleRate*2;
+    const buf = ctx.createBuffer(1,len,ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for(let i=0;i<len;i++) d[i]=Math.random()*2-1;
+    noiseBuffer=buf;
+    return buf;
+  }
+  function tone(freq,dur,type,vol,slideTo){
+    const c=ensure(); if(!c) return;
+    try{
+      const osc=c.createOscillator(); const gain=c.createGain();
+      osc.type=type||'sine'; osc.frequency.setValueAtTime(freq,c.currentTime);
+      if(slideTo) osc.frequency.linearRampToValueAtTime(slideTo,c.currentTime+dur);
+      gain.gain.setValueAtTime(0,c.currentTime);
+      gain.gain.linearRampToValueAtTime(vol||.2,c.currentTime+0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001,c.currentTime+dur);
+      osc.connect(gain); gain.connect(c.destination);
+      osc.start(); osc.stop(c.currentTime+dur+0.05);
+    }catch(e){}
+  }
+  function noiseBurst(dur,vol,filterFreq,type){
+    const c=ensure(); if(!c) return;
+    try{
+      const src=c.createBufferSource(); src.buffer=getNoiseBuffer();
+      const filt=c.createBiquadFilter(); filt.type=type||'bandpass'; filt.frequency.value=filterFreq||1500;
+      const gain=c.createGain();
+      gain.gain.setValueAtTime(vol||.2,c.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001,c.currentTime+dur);
+      src.connect(filt); filt.connect(gain); gain.connect(c.destination);
+      src.start(); src.stop(c.currentTime+dur+0.05);
+    }catch(e){}
+  }
+  function click(){ tone(1200,0.04,'square',.05); tone(700,0.05,'square',.04); }
+  function bell(){
+    tone(880,1.4,'sine',.18); tone(1320,1.2,'sine',.10);
+    setTimeout(()=>{tone(660,1.6,'sine',.14);},550);
+  }
+  function crackle(){ noiseBurst(0.35,.14,2200,'bandpass'); }
+  function footstep(){
+    noiseBurst(0.09,.22,220,'lowpass');
+  }
+  function footstepPattern(count){
+    let i=0;
+    const iv=setInterval(()=>{ footstep(); i++; if(i>=count) clearInterval(iv); },420);
+  }
+  function staticSweep(dur){ noiseBurst(dur||0.4,.18,1800,'bandpass'); }
+  function startHum(){
+    const c=ensure(); if(!c) return;
+    stopHum();
+    try{
+      humOsc=c.createOscillator(); humGain=c.createGain();
+      humOsc.type='sine'; humOsc.frequency.value=60;
+      humGain.gain.value=0.02;
+      humOsc.connect(humGain); humGain.connect(c.destination);
+      humOsc.start();
+    }catch(e){}
+  }
+  function stopHum(){
+    if(humOsc){ try{humOsc.stop();}catch(e){} humOsc=null; }
+  }
+  function jumpscare(kind){
+    const c=ensure(); if(!c){ return; }
+    const variants={
+      broome:{f1:90,f2:260,dur:0.9},
+      howard:{f1:70,f2:340,dur:0.85},
+      perong:{f1:110,f2:220,dur:0.95},
+      simmons:{f1:80,f2:400,dur:0.8},
+      plunkett:{f1:50,f2:180,dur:1.2}
+    };
+    const v=variants[kind]||variants.broome;
+    tone(v.f1,v.dur,'sawtooth',.28,v.f2);
+    noiseBurst(v.dur,.35,v.f2*3,'highpass');
+    setTimeout(()=>tone(v.f2,0.3,'square',.15),80);
+  }
+  function victoryChime(){
+    tone(523,0.35,'sine',.16);
+    setTimeout(()=>tone(659,0.35,'sine',.16),160);
+    setTimeout(()=>tone(784,0.55,'sine',.18),340);
+  }
+  function speak(text){
+    try{
+      if(!('speechSynthesis' in window)) return;
+      const u=new SpeechSynthesisUtterance(text);
+      u.pitch=0.35; u.rate=0.85; u.volume=0.7;
+      window.speechSynthesis.speak(u);
+    }catch(e){}
+  }
+  return {unlock, tone, noiseBurst, click, bell, crackle, footstep, footstepPattern, staticSweep, startHum, stopHum, jumpscare, victoryChime, speak};
+})();
+document.addEventListener('click', Audio_.unlock, {once:true});
+document.addEventListener('touchstart', Audio_.unlock, {once:true});
+
+/* ============================================================
+   NOISE CANVAS RENDERER (TV static)
+   ============================================================ */
+function makeStaticRenderer(canvas){
+  const ctx = canvas.getContext('2d', {alpha:true});
+  let running=false, raf=null;
+  function resize(){
+    canvas.width = Math.max(20, Math.floor(canvas.clientWidth/4));
+    canvas.height = Math.max(20, Math.floor(canvas.clientHeight/4));
+  }
+  function drawFrame(){
+    resize();
+    const w=canvas.width,h=canvas.height;
+    const img = ctx.createImageData(w,h);
+    for(let i=0;i<img.data.length;i+=4){
+      const v = Math.random()*255;
+      img.data[i]=v; img.data[i+1]=v; img.data[i+2]=v; img.data[i+3]=255;
+    }
+    ctx.putImageData(img,0,0);
+  }
+  function loop(){
+    if(!running) return;
+    drawFrame();
+    raf = setTimeout(()=>requestAnimationFrame(loop), 55);
+  }
+  function start(){ if(running) return; running=true; loop(); }
+  function stop(){ running=false; if(raf) clearTimeout(raf); }
+  return {start,stop,drawFrame};
+}
+
+/* ============================================================
+   DUST PARTICLES
+   ============================================================ */
+function spawnDust(container, count){
+  if(!container || container.childElementCount) return;
+  for(let i=0;i<count;i++){
+    const d=document.createElement('div');
+    d.className='dust';
+    d.style.left = rand(0,100)+'%';
+    d.style.setProperty('--dx', rand(-30,30)+'px');
+    d.style.animationDuration = rand(9,20)+'s';
+    d.style.animationDelay = rand(0,14)+'s';
+    container.appendChild(d);
+  }
+}
+function buildLockerRow(container,count){
+  if(!container || container.childElementCount) return;
+  for(let i=0;i<count;i++){
+    const l=document.createElement('div');
+    l.className='locker';
+    container.appendChild(l);
+  }
+}
+
+/* ============================================================
+   CAMERA / SCENE DATA
+   ============================================================ */
+const CAMS = [
+  {id:'c1', num:'01', name:'MAIN HALL'},
+  {id:'c2', num:'02', name:'CAFETERIA'},
+  {id:'c3', num:'03', name:'GYM'},
+  {id:'c4', num:'04', name:'SCIENCE HALL'},
+  {id:'c5', num:'05', name:'LIBRARY'},
+  {id:'c6', num:'06', name:'EAST HALL'},
+  {id:'c7', num:'07', name:'WEST HALL'},
+  {id:'c8', num:'08', name:'BATHROOM'},
+  {id:'c9', num:'09', name:'CLASSROOM WING'},
+  {id:'c10', num:'10', name:'OFFICE HALL'}
+];
+const ALL_CAM_IDS = CAMS.map(c=>c.id);
+
+function buildCamSceneHTML(cam){
+  let extra='';
+  switch(cam.id){
+    case 'c1':
+      extra = '<div class="lockrow"></div>';
+      break;
+    case 'c2':
+      extra = '<div class="cafe-table" style="left:14%;"></div><div class="cafe-table" style="left:40%;"></div><div class="cafe-table" style="left:66%;"></div>';
+      break;
+    case 'c3':
+      extra = '<div class="court-circle"></div><div class="hoop"></div><div class="bleachers"></div>';
+      break;
+    case 'c4':
+      extra = '<div class="lab-table" style="left:14%;"></div><div class="lab-table" style="left:56%;"></div><div class="cabinet" style="left:6%;"></div><div class="cabinet" style="right:6%;"></div>';
+      break;
+    case 'c5':
+      extra = '<div class="shelf" style="left:8%;"><span></span><span></span><span></span><span></span></div><div class="shelf" style="left:22%;"><span></span><span></span><span></span><span></span></div><div class="shelf" style="right:8%;"><span></span><span></span><span></span><span></span></div>';
+      break;
+    case 'c6':
+    case 'c7':
+      extra = '<div class="persp-window" style="left:10%;"><div class="moon" style="left:30%;top:20%;"></div></div><div class="persp-window" style="right:10%;"></div>';
+      break;
+    case 'c8':
+      extra = '<div class="stallwall"><span></span><span></span><span></span><span></span></div>';
+      break;
+    case 'c9':
+      extra = '<div class="whiteboard"></div><div class="desk-row" style="left:16%;"><span></span><span></span><span></span></div><div class="desk-row" style="left:56%;"><span></span><span></span><span></span></div>';
+      break;
+    case 'c10':
+      extra = '<div class="mailslots"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><div class="counter"></div>';
+      break;
+  }
+  return '<div class="ceiling-plane"></div><div class="back-wall"></div><div class="floor-plane"></div>'+extra+
+    '<div class="cam-occupants" id="occ-'+cam.id+'"></div>'+
+    '<div class="cam-label-box">CAM '+cam.num+' &mdash; '+cam.name+'</div>'+
+    '<div class="cam-clock" id="camClock-'+cam.id+'">12:00 AM</div>';
+}
+
+function buildCameraDom(){
+  const wrap = $id('camFeedWrap');
+  CAMS.forEach(cam=>{
+    const div=document.createElement('div');
+    div.className='cam-scene scene-'+cam.id;
+    div.id='scene-'+cam.id;
+    div.innerHTML = buildCamSceneHTML(cam);
+    wrap.insertBefore(div, wrap.firstChild);
+    const lockrow = div.querySelector('.lockrow');
+    if(lockrow) buildLockerRow(lockrow, 10);
+  });
+  const map = $id('monitorMap');
+  CAMS.forEach(cam=>{
+    const b=document.createElement('button');
+    b.className='map-btn'; b.id='mapbtn-'+cam.id;
+    b.textContent='CAM '+cam.num+'\n'+cam.name;
+    b.style.whiteSpace='pre-line';
+    b.addEventListener('click', ()=>switchCamera(cam.id));
+    map.appendChild(b);
+  });
+}
+
+/* ============================================================
+   TEACHER (ENEMY) DEFINITIONS
+   ============================================================ */
+const TEACHER_BASE = {
+  broome:{
+    key:'broome', name:'MR. BROOME', color:'#c0453d', pose:'pose-still',
+    route:['c1','c6','c10'], baseCooldown:9.5, baseProb:0.16, doorTimeBase:15,
+    style:'normal'
+  },
+  howard:{
+    key:'howard', name:'MR. HOWARD', color:'#3d6fc0', pose:'pose-elusive',
+    route:['c9','c4','c6','c10'], baseCooldown:10.5, baseProb:0.14, doorTimeBase:14,
+    style:'vanish'
+  },
+  perong:{
+    key:'perong', name:'COACH PERONG', color:'#d19a2b', pose:'pose-bounce',
+    route:['c3','c7','c10'], baseCooldown:7.5, baseProb:0.20, doorTimeBase:13,
+    style:'aggressive', sfx:'footsteps'
+  },
+  simmons:{
+    key:'simmons', name:'COACH SIMMONS', color:'#7a4bc0', pose:'pose-flicker',
+    route:['c5','c2','c6','c10'], baseCooldown:9.5, baseProb:0.15, doorTimeBase:14,
+    style:'erratic', sfx:'flicker'
+  },
+  plunkett:{
+    key:'plunkett', name:'MR. PLUNKETT', color:'#8a8a8a', pose:'pose-ominous',
+    route:ALL_CAM_IDS.concat(['c10']), baseCooldown:12.5, baseProb:0.10, doorTimeBase:11,
+    style:'random'
+  }
+};
+
+const NIGHT_CONFIG = {
+  1:{duration:330, label:'THE DETENTION',
+     active:{broome:true,howard:true,perong:true,simmons:false,plunkett:false},
+     speedMult:1.0, probMult:0.7, glitchChance:0.010, flickerChance:0.010, powerDrainMult:1.0, plunkettMult:0.15},
+  2:{duration:345, label:'AFTER HOURS',
+     active:{broome:true,howard:true,perong:true,simmons:true,plunkett:false},
+     speedMult:1.15, probMult:0.95, glitchChance:0.016, flickerChance:0.016, powerDrainMult:1.08, plunkettMult:0.35},
+  3:{duration:360, label:'SOMETHING IS WRONG',
+     active:{broome:true,howard:true,perong:true,simmons:true,plunkett:true},
+     speedMult:1.32, probMult:1.15, glitchChance:0.028, flickerChance:0.026, powerDrainMult:1.16, plunkettMult:0.65,
+     anomalies:true},
+  4:{duration:390, label:'LOCKDOWN',
+     active:{broome:true,howard:true,perong:true,simmons:true,plunkett:true},
+     speedMult:1.55, probMult:1.35, glitchChance:0.040, flickerChance:0.034, powerDrainMult:1.30, plunkettMult:1.0,
+     anomalies:true, lockdown:true},
+  5:{duration:420, label:'FINAL PERIOD',
+     active:{broome:true,howard:true,perong:true,simmons:true,plunkett:true},
+     speedMult:1.8, probMult:1.6, glitchChance:0.052, flickerChance:0.044, powerDrainMult:1.45, plunkettMult:1.6,
+     anomalies:true, lockdown:true}
+};
+
+/* ============================================================
+   GAME STATE
+   ============================================================ */
+const Game = {
+  night:1,
+  running:false,
+  paused:false,
+  elapsed:0,
+  duration:330,
+  power:100,
+  flashlightOn:false,
+  camOpen:false,
+  currentCam:'c1',
+  blackout:false,
+  tickHandle:null,
+  teachers:{},
+  camDisabled:{},
+  camSignalTimer:0,
+  bestNight: parseInt(localStorage.getItem('fnas_best')||'0',10) || 0
+};
+
+function initTeachers(night){
+  Game.teachers={};
+  const cfg = NIGHT_CONFIG[night];
+  Object.keys(TEACHER_BASE).forEach(key=>{
+    const base = TEACHER_BASE[key];
+    Game.teachers[key] = {
+      key,
+      active: !!cfg.active[key],
+      location: base.route[0],
+      routeIndex:0,
+      cooldown: rand(base.baseCooldown*0.5, base.baseCooldown),
+      atDoor:false,
+      doorTimer:0,
+      visible:true,
+      vanishTimer:0,
+      exposeTimer:0,
+      freezeTimer:0,
+      aggBonus:0
+    };
+  });
+}
+
+/* ---------- HUD ---------- */
+function formatClock(){
+  const totalMin = (Game.elapsed/Game.duration)*360;
+  let h = Math.floor(totalMin/60);
+  const m = Math.floor(totalMin%60);
+  let display = h===0?12:h;
+  if(display>12) display -= 12;
+  return (display<10?display:display)+':'+(m<10?'0'+m:m)+' '+(h<6?'AM':'AM');
+}
+function currentGameHour(){ return Math.floor(((Game.elapsed/Game.duration)*360)/60); }
+
+function updateHUD(){
+  $id('hudNight').textContent='NIGHT '+Game.night;
+  const clockStr = formatClock();
+  $id('hudClock').textContent=clockStr;
+  $id('monitorClock').textContent=clockStr;
+  CAMS.forEach(c=>{ const el=$id('camClock-'+c.id); if(el) el.textContent=clockStr; });
+  const pw = Math.max(0,Math.round(Game.power));
+  $id('hudPowerText').textContent=pw;
+  const fill = $id('hudPowerFill');
+  fill.style.width=pw+'%';
+  fill.classList.toggle('low', pw<=20);
+
+  // analog clock hands
+  const totalMin = (Game.elapsed/Game.duration)*360;
+  const hourAngle = ((totalMin/60)%12)*30;
+  const minAngle = (totalMin%60)*6;
+  $id('clockHH').style.transform='translate(-1px,-16px) rotate('+hourAngle+'deg)';
+  $id('clockMM').style.transform='translate(-.75px,-22px) rotate('+minAngle+'deg)';
+
+  const anyDoor = Object.values(Game.teachers).some(t=>t.atDoor);
+  $id('hudThreat').classList.toggle('show', anyDoor);
+  $id('doorFrame').classList.toggle('threat', anyDoor);
+}
+
+/* ---------- MAP + FEED RENDER ---------- */
+function renderOccupants(){
+  CAMS.forEach(cam=>{
+    const occ = $id('occ-'+cam.id);
+    if(occ) occ.innerHTML='';
+  });
+  Object.values(Game.teachers).forEach(t=>{
+    if(!t.active || !t.visible || t.atDoor) return;
+    if(Game.camDisabled[t.location]) return;
+    const occ = $id('occ-'+t.location);
+    if(!occ) return;
+    const base = TEACHER_BASE[t.key];
+    const fig=document.createElement('div');
+    fig.className='teacher-figure '+base.pose;
+    fig.style.setProperty('--tcolor', base.color);
+    occ.appendChild(fig);
+  });
+  // map indicator refresh
+  CAMS.forEach(cam=>{
+    const btn=$id('mapbtn-'+cam.id);
+    if(!btn) return;
+    btn.classList.toggle('current', Game.currentCam===cam.id && Game.camOpen);
+    btn.classList.toggle('lost', !!Game.camDisabled[cam.id]);
+  });
+}
+
+function updateDoorFigure(){
+  const anyDoor = Object.values(Game.teachers).find(t=>t.active && t.atDoor);
+  const fig=$id('doorFigure');
+  if(anyDoor){
+    fig.style.setProperty('--tcolor', TEACHER_BASE[anyDoor.key].color);
+    fig.style.background='#000';
+  }
+}
+
+/* ============================================================
+   AI TICK LOGIC
+   ============================================================ */
+function tickTeacher(t, dt, cfg){
+  if(!t.active) return;
+
+  if(t.atDoor){
+    // exposure via flashlight
+    if(Game.flashlightOn && !Game.blackout){
+      t.exposeTimer += dt;
+      if(t.exposeTimer >= 1.3){
+        deterTeacher(t);
+      }
+    } else {
+      t.exposeTimer = Math.max(0, t.exposeTimer - dt*0.5);
+    }
+    const doorSpeed = Game.blackout ? 3.2 : 1.0;
+    t.doorTimer -= dt*doorSpeed;
+    if(t.doorTimer<=0){
+      triggerJumpscare(t.key);
+    }
+    return;
+  }
+
+  if(t.freezeTimer>0){ t.freezeTimer -= dt; return; }
+  if(t.vanishTimer>0){
+    t.vanishTimer -= dt;
+    if(t.vanishTimer<=0){ t.visible=true; }
+    return;
+  }
+
+  t.cooldown -= dt;
+  if(t.cooldown>0) return;
+
+  const base = TEACHER_BASE[t.key];
+  t.cooldown = rand(base.baseCooldown*0.6, base.baseCooldown) / cfg.speedMult;
+
+  let prob = (base.baseProb + t.aggBonus) * cfg.probMult;
+  if(t.key==='plunkett') prob *= cfg.plunkettMult;
+  if(Game.blackout) prob *= 1.6;
+
+  if(Math.random() >= prob) return;
+
+  // style-specific behavior
+  if(base.style==='vanish' && Math.random()<0.30){
+    t.visible=false;
+    t.vanishTimer = rand(3,7)/cfg.speedMult;
+    // during vanish, secretly still advances a step so player must recheck cams
+    advanceRoute(t, base);
+    return;
+  }
+  if(base.style==='erratic'){
+    const roll=Math.random();
+    if(roll<0.18){
+      t.freezeTimer = rand(4,8);
+      return;
+    }
+    if(roll<0.34){
+      t.visible=false;
+      t.vanishTimer = rand(2,4.5)/cfg.speedMult;
+      advanceRoute(t, base);
+      return;
+    }
+    triggerLightFlicker();
+  }
+  if(base.style==='random'){
+    // Plunkett: unpredictable jumps across the whole school
+    if(Math.random()<0.55){
+      const idx = randInt(0, base.route.length-2);
+      t.routeIndex = Math.max(t.routeIndex, idx);
+      t.location = base.route[t.routeIndex];
+    } else {
+      advanceRoute(t, base);
+    }
+    if(Math.random()<0.4) sendToDoorCheck(t, base, cfg);
+    return;
+  }
+  if(base.style==='aggressive' && t.key==='perong'){
+    Audio_.footstepPattern(3);
+  }
+
+  advanceRoute(t, base);
+  sendToDoorCheck(t, base, cfg);
+}
+
+function advanceRoute(t, base){
+  if(t.routeIndex < base.route.length-1){
+    t.routeIndex++;
+    t.location = base.route[t.routeIndex];
+  }
+}
+function sendToDoorCheck(t, base, cfg){
+  if(t.routeIndex >= base.route.length-1){
+    t.atDoor=true;
+    t.doorTimer = (base.doorTimeBase - Game.night*0.6) / cfg.speedMult;
+    t.doorTimer = Math.max(4, t.doorTimer);
+    t.exposeTimer=0;
+    if(base.sfx==='footsteps') Audio_.footstepPattern(2);
+    if(base.sfx==='flicker') triggerLightFlicker();
+    Audio_.crackle();
+  }
+}
+
+function deterTeacher(t){
+  const base = TEACHER_BASE[t.key];
+  t.atDoor=false;
+  t.doorTimer=0;
+  t.exposeTimer=0;
+  t.routeIndex = Math.max(0, t.routeIndex-2);
+  t.location = base.route[t.routeIndex];
+  t.cooldown = rand(base.baseCooldown*0.8, base.baseCooldown*1.3);
+  t.aggBonus += 0.015;
+  Audio_.staticSweep(0.3);
+  flashPulse();
+}
+
+function triggerLightFlicker(){
+  const layer = $id('roomFlickerLayer');
+  layer.style.animation='none';
+  void layer.offsetWidth;
+  layer.style.animation='roomFlicker 2.2s 1';
+}
+
+function flashPulse(){
+  const fo = $id('flashOverlay');
+  fo.classList.add('on');
+  setTimeout(()=>fo.classList.remove('on'), 180);
+}
+
+/* ---------- camera glitches ---------- */
+function maybeGlitchCameras(cfg){
+  if(Game.camOpen && Math.random() < cfg.glitchChance){
+    const cam = pick(CAMS).id;
+    Game.camDisabled[cam]=true;
+    if(cam===Game.currentCam){
+      $id('camSignalLost').classList.add('show');
+    }
+    setTimeout(()=>{
+      delete Game.camDisabled[cam];
+      if(cam===Game.currentCam) $id('camSignalLost').classList.remove('show');
+    }, rand(2500,6000));
+  }
+  if(Math.random() < cfg.flickerChance*0.5){
+    triggerLightFlicker();
+  }
+}
+
+let anomalyCooldown=0;
+function maybeAnomaly(cfg,dt){
+  if(!cfg.anomalies) return;
+  anomalyCooldown -= dt;
+  if(anomalyCooldown>0) return;
+  anomalyCooldown = rand(45,85);
+  if(Math.random()<0.5){
+    Audio_.noiseBurst(0.6,.1,900,'bandpass');
+    triggerLightFlicker();
+  } else {
+    Audio_.crackle();
+  }
+}
+
+/* ============================================================
+   MAIN GAME LOOP
+   ============================================================ */
+let lastTick=0;
+function gameLoop(ts){
+  if(!Game.running) return;
+  if(!lastTick) lastTick=ts;
+  const dt = Math.min(0.5,(ts-lastTick)/1000);
+  lastTick=ts;
+
+  if(!Game.paused){
+    Game.elapsed += dt;
+    const cfg = NIGHT_CONFIG[Game.night];
+
+    // power drain
+    let drain = 0.0155; // base
+    if(Game.camOpen) drain += 0.028;
+    if(Game.flashlightOn) drain += 0.05;
+    drain *= cfg.powerDrainMult;
+    if(!Game.blackout){
+      Game.power = clamp(Game.power - drain*dt*10, 0, 100);
+    }
+    if(Game.power<=0 && !Game.blackout){
+      enterBlackout();
+    }
+
+    Object.values(Game.teachers).forEach(t=>tickTeacher(t, dt, cfg));
+    maybeGlitchCameras(cfg);
+    maybeAnomaly(cfg,dt);
+
+    if(currentGameHour()>=6){
+      finishNight();
+      return;
+    }
+
+    updateHUD();
+    if(Game.camOpen) renderOccupants();
+    else if((Math.floor(Game.elapsed*2))%2===0) renderOccupants();
+    updateDoorFigure();
+  }
+  requestAnimationFrame(gameLoop);
+}
+
+function enterBlackout(){
+  Game.blackout=true;
+  $id('roomScene').classList.add('blackout');
+  $id('btnCameras').disabled=true;
+  $id('btnFlashlight').disabled=true;
+  if(Game.camOpen) closeCameras();
+  Game.flashlightOn=false;
+  $id('roomScene').classList.remove('flashlight-on');
+  Audio_.stopHum();
+  Audio_.tone(45,3,'sawtooth',.05);
+}
+
+/* ---------- night lifecycle ---------- */
+function startNight(n){
+  Game.night=n;
+  const cfg=NIGHT_CONFIG[n];
+  Game.duration=cfg.duration;
+  Game.elapsed=0;
+  Game.power=100;
+  Game.flashlightOn=false;
+  Game.camOpen=false;
+  Game.blackout=false;
+  Game.currentCam='c1';
+  Game.camDisabled={};
+  lastTick=0;
+  initTeachers(n);
+
+  $id('roomScene').classList.remove('blackout','flashlight-on');
+  $id('btnCameras').disabled=false;
+  $id('btnFlashlight').disabled=false;
+  $id('camMonitor').classList.remove('open');
+
+  showScreen('screen-game');
+  updateHUD();
+  renderOccupants();
+  Game.running=true;
+  Audio_.startHum();
+  requestAnimationFrame(gameLoop);
+}
+
+function finishNight(){
+  Game.running=false;
+  Audio_.stopHum();
+  if(Game.camOpen) closeCameras();
+  if(Game.night > Game.bestNight){
+    Game.bestNight = Game.night;
+    localStorage.setItem('fnas_best', String(Game.bestNight));
+  }
+  Audio_.victoryChime();
+  showScreen('screen-victory');
+  const box=$id('victoryBox');
+  box.classList.remove('show');
+  if(Game.night>=5){
+    $id('victoryNightLabel').textContent='NIGHT 5 COMPLETE';
+    $id('btnContinueNight').textContent='CONTINUE';
+    setTimeout(()=>box.classList.add('show'), 50);
+  } else {
+    $id('victoryNightLabel').textContent='NIGHT '+Game.night+' COMPLETE';
+    $id('btnContinueNight').textContent='CONTINUE';
+    setTimeout(()=>box.classList.add('show'), 50);
+  }
+}
+
+function continueFromVictory(){
+  if(Game.night>=5){
+    playEnding();
+  } else {
+    startNight(Game.night+1);
+  }
+}
+
+/* ---------- jumpscare / game over ---------- */
+function triggerJumpscare(teacherKey){
+  Game.running=false;
+  Audio_.stopHum();
+  Audio_.jumpscare(teacherKey);
+  const base=TEACHER_BASE[teacherKey];
+  showScreen('screen-jumpscare');
+  const flash=$id('scareFlash'), fig=$id('scareFigure'), txt=$id('caughtText');
+  flash.classList.remove('go'); fig.classList.remove('go'); txt.classList.remove('show');
+  fig.style.setProperty('--tcolor', base.color);
+  document.body.classList.add('shake');
+  void flash.offsetWidth;
+  flash.classList.add('go');
+  fig.classList.add('go');
+  setTimeout(()=>document.body.classList.remove('shake'), 420);
+  setTimeout(()=>{ txt.classList.add('show'); }, 900);
+}
+
+/* ============================================================
+   CAMERA MONITOR CONTROLS
+   ============================================================ */
+let staticRenderer=null, miniStaticRenderer=null;
+
+function openCameras(){
+  if(Game.blackout) return;
+  Game.camOpen=true;
+  $id('camMonitor').classList.add('open');
+  $id('btnCameras').classList.add('engaged');
+  Audio_.click();
+  switchCamera(Game.currentCam, true);
+  renderOccupants();
+}
+function closeCameras(){
+  Game.camOpen=false;
+  $id('camMonitor').classList.remove('open');
+  $id('btnCameras').classList.remove('engaged');
+  Audio_.click();
+}
+function switchCamera(camId, silent){
+  if(Game.camDisabled[Game.currentCam] && camId===Game.currentCam){ /* stays lost */ }
+  const staticEl = $id('camStaticCanvas');
+  staticEl.classList.add('show');
+  if(!silent) Audio_.staticSweep(0.25);
+  document.querySelectorAll('.cam-scene').forEach(s=>s.classList.remove('active'));
+  Game.currentCam = camId;
+  const scene = $id('scene-'+camId);
+  if(scene) scene.classList.add('active');
+  const camData = CAMS.find(c=>c.id===camId);
+  $id('monitorCamLabel').textContent = 'CAM '+camData.num+' — '+camData.name;
+  $id('camSignalLost').classList.toggle('show', !!Game.camDisabled[camId]);
+  setTimeout(()=>staticEl.classList.remove('show'), 180);
+  renderOccupants();
+}
+
+/* ---------- flashlight ---------- */
+function setFlashlight(on){
+  if(Game.blackout){ Game.flashlightOn=false; return; }
+  if(Game.camOpen && on) return;
+  Game.flashlightOn = on;
+  $id('roomScene').classList.toggle('flashlight-on', on);
+  $id('btnFlashlight').classList.toggle('engaged', on);
+  if(on) Audio_.click();
+}
+
+/* ============================================================
+   INIT — build scenes, buttons, dust
+   ============================================================ */
+buildCameraDom();
+buildLockerRow($id('menuLockers'),16);
+buildLockerRow($id('roomLockers'),6);
+staticRenderer = makeStaticRenderer($id('camStaticCanvas'));
+miniStaticRenderer = makeStaticRenderer($id('miniStatic'));
+miniStaticRenderer.start();
+
+/* keep the mini static + main static rendering while relevant screens open */
+setInterval(()=>{
+  if($id('camMonitor').classList.contains('open')) $id('camStaticCanvas').parentElement, staticRenderer.drawFrame();
+}, 60);
+
+/* ============================================================
+   SCREEN NAV WIRING
+   ============================================================ */
+function goMenu(){
+  Game.running=false;
+  Audio_.stopHum();
+  spawnDust($id('dustMenu'),22);
+  $id('menuProgress').textContent = Game.bestNight>0 ? ('FURTHEST NIGHT REACHED: '+Game.bestNight) : '';
+  showScreen('screen-menu');
+}
+
+$id('btnHowTo').addEventListener('click', ()=>showScreen('screen-howto'));
+$id('backFromHowTo').addEventListener('click', goMenu);
+$id('btnCredits').addEventListener('click', ()=>showScreen('screen-credits'));
+$id('backFromCredits').addEventListener('click', goMenu);
+
+$id('btnNewGame').addEventListener('click', ()=>{ Game.night=1; playOpeningCinematic(); });
+
+$id('btnCameras').addEventListener('click', ()=>{
+  if(Game.camOpen) closeCameras(); else openCameras();
+});
+$id('btnCloseCam').addEventListener('click', closeCameras);
+
+const flashBtn = $id('btnFlashlight');
+flashBtn.addEventListener('mousedown', ()=>setFlashlight(true));
+flashBtn.addEventListener('mouseup', ()=>setFlashlight(false));
+flashBtn.addEventListener('mouseleave', ()=>setFlashlight(false));
+flashBtn.addEventListener('touchstart', (e)=>{ e.preventDefault(); setFlashlight(true); }, {passive:false});
+flashBtn.addEventListener('touchend', (e)=>{ e.preventDefault(); setFlashlight(false); }, {passive:false});
+
+$id('btnTryAgain').addEventListener('click', ()=>{ startNight(Game.night); });
+$id('btnScareMenu').addEventListener('click', goMenu);
+$id('btnContinueNight').addEventListener('click', continueFromVictory);
+
+$id('skipIntroBtn').addEventListener('click', ()=>{ fastForward=true; });
+
+/* ============================================================
+   INTRO CREDITS SEQUENCE
+   ============================================================ */
+async function playIntro(){
+  fastForward=false;
+  spawnDust($id('dustIntro'),16);
+  showScreen('screen-intro');
+  await wait(700);
+  $id('introText1').classList.add('show');
+  await wait(2600);
+  $id('introText1').classList.remove('show');
+  await wait(900);
+  $id('introText2').classList.add('show');
+  await wait(2600);
+  $id('introText2').classList.remove('show');
+  await wait(900);
+  fastForward=false;
+  goMenu();
+}
+
+/* ============================================================
+   OPENING CINEMATIC (after NEW GAME)
+   ============================================================ */
+function cineCaption(text, sizeClass){
+  const wrap = $id('cineCaptionWrap');
+  wrap.innerHTML = '<div class="'+(sizeClass||'cine-caption')+'">'+text+'</div>';
+  return wrap.firstElementChild;
+}
+async function showCaption(text, holdMs, cls){
+  const el = cineCaption(text, cls);
+  await wait(60);
+  el.classList.add('show');
+  await wait(holdMs);
+  el.classList.remove('show');
+  await wait(500);
+}
+
+async function playOpeningCinematic(){
+  fastForward=false;
+  showScreen('screen-cinematic');
+  const stage = $id('cineStage');
+
+  // Hallway
+  stage.innerHTML = '<div class="scene-hallway"><div class="hall-perspective"><div class="hall-ceiling"></div><div class="hall-floor"></div><div class="hall-wall-l"></div><div class="hall-wall-r"></div><div class="hall-lockers"></div><div class="hall-light"></div></div></div>';
+  buildLockerRow(stage.querySelector('.hall-lockers'),14);
+  await showCaption('11:47 PM', 1800, 'cine-time');
+  await showCaption('You stayed after school.', 2200);
+  await showCaption('Not because you had to.', 2200);
+  await showCaption('You were hiding from class.', 2600);
+
+  // Bathroom
+  stage.innerHTML = '<div class="scene-bathroom"><div class="bathroom-tiles"></div><div class="stall-row"></div></div>';
+  const stallRow = stage.querySelector('.stall-row');
+  for(let i=0;i<4;i++){
+    const s=document.createElement('div');
+    s.className='stall'+(i===2?' player-stall':'');
+    if(i===2){ s.innerHTML='<div class="stall-door-shut" id="stallDoor"></div>'; }
+    stallRow.appendChild(s);
+  }
+  await wait(1400);
+  const doorEl = $id('stallDoor');
+  if(doorEl) doorEl.style.transform='rotateY(35deg)';
+  await wait(1200);
+  if(doorEl) doorEl.style.transform='rotateY(0deg)';
+  Audio_.click();
+  await wait(1200);
+
+  // fade to black
+  stage.innerHTML = '<div class="scene-blackout"></div>';
+  await wait(900);
+  await showCaption('11:59 PM', 1600, 'cine-time');
+
+  Audio_.bell();
+  triggerLightFlicker();
+  await wait(1400);
+
+  stage.innerHTML = '<div class="scene-blackout"></div><div class="intercom-box" style="position:relative;z-index:5;"><div class="intercom-icon live"></div></div>';
+  await wait(500);
+  Audio_.speak('Attention.');
+  await showCaption('&ldquo;ATTENTION&hellip;&rdquo;', 1800);
+  Audio_.speak('The school is now closed.');
+  await showCaption('&rdquo;&hellip;THE SCHOOL IS NOW CLOSED.&rdquo;', 2200);
+  Audio_.crackle();
+  await wait(1000);
+
+  stage.innerHTML = '<div class="scene-blackout"></div>';
+  await wait(800);
+  await showCaption('12:00 AM', 1700, 'cine-time');
+  await showCaption('NIGHT 1', 1700, 'cine-time');
+  fastForward=false;
+  startNight(1);
+}
+$id('skipCineBtn').addEventListener('click', ()=>{ fastForward=true; });
+
+/* ============================================================
+   ENDING CINEMATIC
+   ============================================================ */
+async function playEnding(){
+  fastForward=false;
+  Game.running=false;
+  Audio_.stopHum();
+  showScreen('screen-ending');
+  const stage=$id('endingStage');
+  const capWrap=$id('endingCaptionWrap');
+  function cap(text,cls){
+    capWrap.innerHTML='<div class="'+(cls||'cine-caption')+'">'+text+'</div>';
+    return capWrap.firstElementChild;
+  }
+  async function show(text,hold,cls){
+    const el=cap(text,cls);
+    await wait(60); el.classList.add('show');
+    await wait(hold); el.classList.remove('show'); await wait(500);
+  }
+
+  stage.innerHTML='<div class="scene-hallway"><div class="hall-perspective"><div class="hall-ceiling"></div><div class="hall-floor"></div><div class="hall-wall-l"></div><div class="hall-wall-r"></div></div></div>';
+  await show('You leave the security room.', 2400);
+  await show('The school is completely empty.', 2600);
+
+  stage.innerHTML='<div class="scene-exterior"><div class="school-silhouette"></div><div class="sunrise" id="sunriseEl"></div></div>';
+  const sil = stage.querySelector('.school-silhouette');
+  for(let i=0;i<10;i++){
+    const w=document.createElement('div'); w.className='win';
+    w.style.left=(8+Math.random()*84)+'%'; w.style.top=(45+Math.random()*45)+'%';
+    sil.appendChild(w);
+  }
+  await wait(800);
+  $id('sunriseEl').classList.add('up');
+  await show('6:00 AM', 2200, 'cine-time');
+
+  stage.innerHTML='<div class="scene-blackout"></div>';
+  await show('You survived.', 2200);
+  await show('But you still have school tomorrow.', 2800);
+
+  stage.innerHTML='<div class="scene-blackout"></div>';
+  await show('FIVE NIGHTS AT SCHOOL', 2400, 'cine-time');
+  await show('THE END', 2000, 'cine-time');
+  await show('Thanks for playing.', 3000);
+
+  fastForward=false;
+  Game.night=1;
+  goMenu();
+}
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+playIntro();
+
+})();
+</script>
+</body>
+</html>
