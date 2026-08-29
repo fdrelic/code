@@ -419,6 +419,24 @@ html.reduced-motion *,html.reduced-motion *::before,html.reduced-motion *::after
 }
 .danger-btn:hover{background:rgba(255,77,94,.18);}
 
+.save-code-panel{max-width:520px;margin-bottom:22px;}
+.save-code-box{
+  width:100%;resize:vertical;background:var(--charcoal);border:1px solid var(--panel-border);color:var(--cream);
+  border-radius:8px;padding:10px 12px;font-family:'Courier New',monospace;font-size:11px;line-height:1.5;
+  word-break:break-all;
+}
+.save-code-box:focus{outline:none;border-color:var(--gold);}
+.save-code-actions{margin:10px 0 18px;}
+.save-code-import{border-top:1px dashed rgba(255,255,255,.08);padding-top:14px;}
+.storage-warn{
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  background:rgba(255,77,94,.12);border:1px solid var(--danger);color:var(--danger);
+  padding:10px 16px;border-radius:10px;font-size:12px;font-weight:600;text-align:center;margin-bottom:16px;
+}
+.storage-warn.top-banner{border-radius:0;margin:0;position:sticky;top:57px;z-index:39;}
+.warn-dismiss{background:transparent;border:none;color:inherit;font-size:14px;cursor:pointer;opacity:.75;flex-shrink:0;}
+.warn-dismiss:hover{opacity:1;}
+
 /* ============================================================ TOASTS */
 #achToasts{position:fixed;top:14px;right:14px;z-index:120;display:flex;flex-direction:column;gap:8px;max-width:300px;}
 .ach-toast{
@@ -503,6 +521,11 @@ footer.foot{text-align:center;padding:20px;color:var(--dimmer);font-size:10.5px;
       <div class="pill credits"><span class="ic">◆</span><span id="navCredits">0</span></div>
     </div>
   </header>
+
+  <div id="globalStorageWarning" class="storage-warn top-banner hidden">
+    <span>⚠ AUTOSAVE MAY NOT WORK IN THIS EMBED — open <b>SETTINGS</b> to copy a Save Code and keep your progress.</span>
+    <button id="dismissWarnBtn" class="warn-dismiss" aria-label="Dismiss">✕</button>
+  </div>
 
   <main id="screens">
 
@@ -593,7 +616,24 @@ footer.foot{text-align:center;padding:20px;color:var(--dimmer);font-size:10.5px;
     <!-- ==================================================== SETTINGS SCREEN -->
     <section class="screen" id="screen-settings">
       <h2 class="screen-title">SETTINGS</h2>
-      <p class="screen-sub">Your progress autosaves to this browser.</p>
+      <p class="screen-sub">Your progress autosaves to this browser when possible.</p>
+
+      <div class="panel-box save-code-panel">
+        <h3>SAVE CODE — BACKUP YOUR PROGRESS
+          <span class="help-ic">?<span class="tip">Embedded pages (like a Google Sites page) sometimes cannot remember your progress between visits. Copy this code and keep it somewhere safe. Paste it back in below, any time, on any device, to restore your entire collection, credits, and stats.</span></span>
+        </h3>
+        <div id="storageWarning" class="storage-warn hidden">⚠ Autosave could not be verified in this window. Copy your Save Code below before you leave this page, or your progress may be lost.</div>
+        <textarea id="saveCodeBox" class="save-code-box" readonly rows="3" aria-label="Your save code"></textarea>
+        <div class="save-code-actions">
+          <button class="shop-buy" id="copyCodeBtn">COPY SAVE CODE</button>
+        </div>
+        <div class="save-code-import">
+          <div class="sdesc2" style="margin-bottom:6px;">Have a code? Paste it here to restore a save:</div>
+          <textarea id="importCodeBox" class="save-code-box" rows="3" placeholder="Paste your save code here…" aria-label="Paste save code to restore"></textarea>
+          <button class="danger-btn" id="loadCodeBtn" style="margin-top:8px;">LOAD SAVE CODE</button>
+        </div>
+      </div>
+
       <div class="settings-list">
         <div class="setting-row">
           <div><div class="slabel2">Sound</div><div class="sdesc2">UI tones and roll chimes.</div></div>
@@ -911,27 +951,63 @@ function defaultState(){
     spinning:false
   };
 }
+// Google Sites (and some other embeds) can serve this page inside a sandboxed
+// or per-load-opaque iframe where localStorage silently fails or does not
+// persist between visits. We probe for that up front so the UI can warn the
+// player and point them at the manual Save Code backup (see EXPORT/IMPORT below),
+// which works regardless of the embedding context since it never touches storage.
+function testStorageAvailable(){
+  try{
+    const k = '__hamgames_probe__';
+    localStorage.setItem(k, '1');
+    const ok = localStorage.getItem(k) === '1';
+    localStorage.removeItem(k);
+    return ok;
+  }catch(e){ return false; }
+}
+const STORAGE_OK = testStorageAvailable();
+
+function mergeIntoDefaults(parsed){
+  const merged = Object.assign(defaultState(), parsed);
+  merged.shop = Object.assign(defaultState().shop, parsed.shop||{});
+  merged.stats = Object.assign(defaultState().stats, parsed.stats||{});
+  merged.settings = Object.assign(defaultState().settings, parsed.settings||{});
+  merged.owned = parsed.owned || {};
+  merged.newIds = parsed.newIds || {};
+  merged.achievements = parsed.achievements || {};
+  merged.history = parsed.history || [];
+  merged.spinning = false;
+  return merged;
+}
+
 let state = loadState();
 
 function loadState(){
   try{
     const raw = localStorage.getItem(SAVE_KEY);
     if(!raw) return defaultState();
-    const parsed = JSON.parse(raw);
-    const merged = Object.assign(defaultState(), parsed);
-    merged.shop = Object.assign(defaultState().shop, parsed.shop||{});
-    merged.stats = Object.assign(defaultState().stats, parsed.stats||{});
-    merged.settings = Object.assign(defaultState().settings, parsed.settings||{});
-    merged.owned = parsed.owned || {};
-    merged.newIds = parsed.newIds || {};
-    merged.achievements = parsed.achievements || {};
-    merged.history = parsed.history || [];
-    merged.spinning = false;
-    return merged;
+    return mergeIntoDefaults(JSON.parse(raw));
   }catch(e){ return defaultState(); }
 }
 function saveState(){
-  try{ localStorage.setItem(SAVE_KEY, JSON.stringify(state)); }catch(e){/* storage unavailable */}
+  try{ localStorage.setItem(SAVE_KEY, JSON.stringify(state)); }catch(e){/* storage unavailable — Save Code is the fallback */}
+}
+
+/* ---------- SAVE CODE: manual export/import, independent of localStorage ---------- */
+function exportSaveCode(){
+  try{ return btoa(unescape(encodeURIComponent(JSON.stringify(state)))); }
+  catch(e){ return ''; }
+}
+function importSaveCode(code){
+  try{
+    const json = decodeURIComponent(escape(atob(code.trim())));
+    const parsed = JSON.parse(json);
+    if(!parsed || typeof parsed!=='object' || typeof parsed.owned!=='object' || typeof parsed.stats!=='object') return false;
+    state = mergeIntoDefaults(parsed);
+    state.firstTime = false;
+    saveState();
+    return true;
+  }catch(e){ return false; }
 }
 
 /* live luck / magnet accessors */
@@ -1560,12 +1636,47 @@ document.getElementById('setReducedMotion').addEventListener('change', e=>{ stat
 document.getElementById('setBgEffects').addEventListener('change', e=>{ state.settings.bgEffects = e.target.checked; saveState(); applySettingsToDom(); });
 document.getElementById('resetBtn').addEventListener('click', ()=>{
   if(!confirm('This will permanently erase your entire HAMGAMES RNG save: collection, credits, stats, and achievements. This cannot be undone. Continue?')) return;
-  localStorage.removeItem(SAVE_KEY);
+  try{ localStorage.removeItem(SAVE_KEY); }catch(e){/* storage unavailable */}
   state = defaultState();
   state.firstTime = false;
   saveState();
   renderAll();
   showEventBanner('SAVE DATA RESET', 'Welcome back to a fresh Ham Chamber.');
+});
+
+/* ---------- Save Code UI ---------- */
+function refreshSaveCodeBox(){
+  document.getElementById('saveCodeBox').value = exportSaveCode();
+  document.getElementById('storageWarning').classList.toggle('hidden', STORAGE_OK);
+}
+document.getElementById('copyCodeBtn').addEventListener('click', ()=>{
+  const box = document.getElementById('saveCodeBox');
+  box.focus(); box.select(); box.setSelectionRange(0, box.value.length);
+  const announce = ()=>showEventBanner('SAVE CODE COPIED', 'Keep it somewhere safe — paste it back in any time to restore your progress.');
+  const fail = ()=>showEventBanner('COPY FAILED', 'The code is selected — copy it manually with Ctrl/Cmd+C.');
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(box.value).then(announce).catch(()=>{
+      try{ document.execCommand('copy') ? announce() : fail(); }catch(e){ fail(); }
+    });
+  } else {
+    try{ document.execCommand('copy') ? announce() : fail(); }catch(e){ fail(); }
+  }
+});
+document.getElementById('loadCodeBtn').addEventListener('click', ()=>{
+  const code = document.getElementById('importCodeBox').value;
+  if(!code.trim()) return;
+  if(!confirm('Load this Save Code? This will overwrite your current progress in this browser with what is stored in the code.')) return;
+  if(importSaveCode(code)){
+    document.getElementById('importCodeBox').value = '';
+    renderAll();
+    refreshSaveCodeBox();
+    showEventBanner('SAVE CODE LOADED', 'Your progress has been restored.');
+  } else {
+    showEventBanner('INVALID SAVE CODE', 'That code could not be read. Make sure you copied all of it.');
+  }
+});
+document.getElementById('dismissWarnBtn').addEventListener('click', ()=>{
+  document.getElementById('globalStorageWarning').classList.add('hidden');
 });
 
 /* ============================================================ NAVIGATION */
@@ -1579,6 +1690,7 @@ function showScreen(name){
   if(name==='market') renderMarket();
   if(name==='achievements') renderAchievements();
   if(name==='stats') renderStats();
+  if(name==='settings') refreshSaveCodeBox();
 }
 document.querySelectorAll('.nav-btn').forEach(btn=>{
   btn.addEventListener('click', ()=>{ Sound.click(); showScreen(btn.getAttribute('data-screen')); });
@@ -1667,6 +1779,10 @@ function init(){
   const enterApp = ()=>{
     document.getElementById('app').classList.remove('hidden');
     renderAll();
+    if(!STORAGE_OK){
+      document.getElementById('globalStorageWarning').classList.remove('hidden');
+      setTimeout(()=>showEventBanner('AUTOSAVE UNAVAILABLE', 'Open SETTINGS and copy a Save Code so you do not lose your progress.'), 900);
+    }
   };
 
   if(state.firstTime){
