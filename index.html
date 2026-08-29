@@ -7,6 +7,7 @@
 <style>
 /* ============================================================
    FIVE NIGHTS AT SCHOOL — styles
+   A HAMGAMES ORIGINAL
    ============================================================ */
 :root{
   --black:#050505;
@@ -92,34 +93,8 @@ html,body{
   90%{opacity:.3;}
   100%{transform:translate(var(--dx,20px),-110vh);opacity:0;}
 }
-
-/* ============================================================
-   INTRO CREDITS
-   ============================================================ */
-#screen-intro{background:#000;}
-.intro-hall{
-  position:absolute;inset:0;
-  background:
-    radial-gradient(ellipse at 50% 40%, rgba(80,70,40,.15), rgba(0,0,0,0) 60%),
-    linear-gradient(#0d0c0a,#000 80%);
-}
-.intro-hall::before{
-  content:'';position:absolute;left:50%;top:20%;width:1px;height:60%;
-  transform:translateX(-50%);
-  background:linear-gradient(to bottom, rgba(232,178,61,.25), transparent);
-}
-.intro-text{
-  position:relative;z-index:5;text-align:center;
-  opacity:0;transition:opacity 1.6s ease;
-}
-.intro-text.show{opacity:1;}
-.intro-title{
-  font-size:clamp(22px,5vw,44px);letter-spacing:6px;color:var(--text-main);
-  text-shadow:0 0 14px rgba(232,178,61,.35);
-}
-.intro-sub{
-  margin-top:14px;font-size:clamp(12px,2.4vw,18px);letter-spacing:10px;color:var(--amber-dim);
-}
+canvas.noise-canvas{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;}
+.grain-canvas{position:absolute;inset:0;pointer-events:none;z-index:55;opacity:.05;mix-blend-mode:overlay;}
 .skip-btn{
   position:absolute;bottom:22px;right:26px;z-index:60;
   background:transparent;border:1px solid rgba(232,178,61,.35);color:var(--amber-dim);
@@ -127,6 +102,55 @@ html,body{
   cursor:pointer;
 }
 .skip-btn:hover{color:var(--amber);border-color:var(--amber);}
+
+/* ============================================================
+   PRE-TITLE CINEMATIC (exterior shot + HAMGAMES credits)
+   ============================================================ */
+#screen-intro{background:#000;}
+.exterior-stage{position:absolute;inset:0;overflow:hidden;background:#000;}
+.exterior-school{position:absolute;inset:0;transform-origin:50% 62%;animation:kenBurns 16s ease-in-out forwards;}
+@keyframes kenBurns{
+  0%{transform:scale(1.1) translateY(.5%);}
+  100%{transform:scale(1.22) translateY(-1.5%);}
+}
+.ext-sky{position:absolute;inset:0;background:linear-gradient(#03040a,#0a0d14 55%,#100e0a 100%);}
+.ext-ground{position:absolute;left:0;right:0;bottom:0;height:26%;background:linear-gradient(#0a0a08,#020201);}
+.ext-parking{position:absolute;left:0;right:0;bottom:0;height:18%;background:#08090a;}
+.ext-pline{position:absolute;bottom:2%;width:1.4%;height:12%;background:rgba(255,255,255,.05);transform:skewX(-16deg);}
+.ext-building{position:absolute;left:16%;right:16%;bottom:18%;height:40%;background:linear-gradient(#1a1712,#0c0a07);}
+.ext-roofline{position:absolute;left:-2%;right:-2%;top:-3%;height:5%;background:#0a0806;}
+.ext-window{position:absolute;width:3%;height:15%;background:#050605;border:1px solid #1e1b15;}
+.ext-window.lit{background:rgba(215,185,95,.14);box-shadow:0 0 6px rgba(215,185,95,.12);}
+.ext-door-main{position:absolute;left:46%;bottom:0;width:8%;height:20%;background:#0a0806;border:1px solid #1e1b15;}
+.ext-sign{
+  position:absolute;left:50%;bottom:23%;transform:translateX(-50%);
+  font-size:9px;letter-spacing:3px;color:#8a7a4a;padding:4px 10px;border:1px solid #2a2416;background:rgba(0,0,0,.4);
+  white-space:nowrap;opacity:.8;
+}
+.ext-lamp{position:absolute;bottom:18%;width:3px;height:11%;background:#161310;}
+.ext-lamp::after{content:'';position:absolute;top:-9px;left:50%;transform:translateX(-50%);width:16px;height:16px;border-radius:50%;
+  background:radial-gradient(circle, rgba(255,222,150,.55), rgba(255,222,150,0) 72%);animation:lampFlick 5s infinite;}
+@keyframes lampFlick{0%,100%{opacity:1;}83%{opacity:1;}84%{opacity:.3;}85%{opacity:1;}}
+.ext-tree{position:absolute;bottom:18%;width:2.6%;height:15%;background:#050503;border-radius:50% 50% 8% 8%;
+  animation:treeSway 6.5s ease-in-out infinite;transform-origin:bottom center;}
+@keyframes treeSway{0%,100%{transform:rotate(-1.4deg);}50%{transform:rotate(1.4deg);}}
+
+.intro-text{
+  position:relative;z-index:5;text-align:center;
+  opacity:0;transition:opacity 1.6s ease;
+}
+.intro-text.show{opacity:1;}
+.intro-title{
+  font-size:clamp(20px,4.6vw,40px);letter-spacing:6px;color:var(--text-main);
+  text-shadow:0 0 14px rgba(232,178,61,.35);
+}
+.intro-sub{
+  margin-top:14px;font-size:clamp(11px,2.2vw,16px);letter-spacing:10px;color:var(--amber-dim);
+}
+.intro-studio{
+  font-size:clamp(16px,3.4vw,26px);letter-spacing:6px;color:#cfc6ab;
+}
+.intro-studio.small{font-size:clamp(11px,2.2vw,15px);letter-spacing:8px;color:var(--amber-dim);}
 
 /* ============================================================
    MAIN MENU
@@ -144,30 +168,43 @@ html,body{
       rgba(255,255,255,0) 0 6%,
       rgba(255,255,255,0.02) 6% 6.4%,
       rgba(255,255,255,0) 6.4% 12%);
+  animation:camSway 9s ease-in-out infinite;
+}
+@keyframes camSway{
+  0%,100%{transform:translateX(-50%) rotate(0deg);}
+  50%{transform:translateX(-50.4%) rotate(.15deg);}
 }
 .hall-floor{
   position:absolute;left:0;right:0;bottom:0;height:38%;
   background:linear-gradient(to top, #05040300, #14110c 40%, #221c14 100%);
   clip-path:polygon(20% 100%,80% 100%,58% 0,42% 0);
 }
+.hall-floor::after{
+  content:'';position:absolute;left:30%;right:30%;top:0;bottom:60%;
+  background:linear-gradient(to top, rgba(232,178,61,.05), transparent);
+}
 .hall-ceiling{
   position:absolute;left:0;right:0;top:0;height:22%;
   background:linear-gradient(to bottom,#0c0c0c,#000);
   clip-path:polygon(30% 0,70% 0,54% 100%,46% 100%);
 }
+.hall-vent{position:absolute;top:2%;left:44%;width:12%;height:3%;background:#0e0e0e;
+  background-image:repeating-linear-gradient(90deg, rgba(0,0,0,.7) 0 2px, transparent 2px 6px);}
 .hall-wall-l,.hall-wall-r{
   position:absolute;top:0;bottom:0;width:34%;
   background:repeating-linear-gradient(90deg,#182226 0 18px,#1e2b30 18px 20px);
 }
 .hall-wall-l{left:0;clip-path:polygon(0 0,100% 8%,100% 92%,0 100%);}
 .hall-wall-r{right:0;clip-path:polygon(0 8%,100% 0,100% 100%,0 92%);}
+.hall-poster{position:absolute;width:6%;height:14%;background:rgba(200,190,150,.06);border:1px solid rgba(200,190,150,.1);}
 .hall-lockers{
   position:absolute;left:0;right:0;bottom:34%;height:30%;
   display:flex;gap:2px;padding:0 6%;
   opacity:.55;
 }
-.locker{flex:1;background:linear-gradient(180deg,var(--locker-blue),#1b3140);border:1px solid #0c1a22;}
+.locker{flex:1;background:linear-gradient(180deg,var(--locker-blue),#1b3140);border:1px solid #0c1a22;position:relative;}
 .locker:nth-child(3n){background:linear-gradient(180deg,var(--locker-red),#421c1c);}
+.locker::after{content:'';position:absolute;left:50%;top:40%;width:2px;height:14%;background:rgba(0,0,0,.5);}
 .hall-light{
   position:absolute;top:6%;width:10%;height:8px;left:50%;transform:translateX(-50%);
   background:radial-gradient(ellipse, rgba(255,244,214,.9), rgba(255,244,214,0) 70%);
@@ -177,12 +214,23 @@ html,body{
 @keyframes lightBuzz{
   0%,100%{opacity:.9;} 48%{opacity:.9;} 50%{opacity:.2;} 52%{opacity:.85;} 74%{opacity:.85;} 75%{opacity:.3;} 77%{opacity:.9;}
 }
+.hall-shadow-figure{
+  position:absolute;bottom:34%;width:5%;max-width:36px;height:14%;
+  background:#000;opacity:0;border-radius:40% 40% 0 0;
+  animation:distantShadow 14s ease-in-out infinite;
+}
+@keyframes distantShadow{
+  0%,88%{opacity:0;left:38%;}
+  90%{opacity:.4;left:40%;}
+  94%{opacity:.35;left:44%;}
+  97%,100%{opacity:0;left:48%;}
+}
 .menu-fg{
   position:relative;z-index:10;text-align:center;
   padding:20px;
 }
 .game-title{
-  font-size:clamp(28px,7vw,64px);letter-spacing:4px;color:#efe6c9;
+  font-size:clamp(26px,6.4vw,60px);letter-spacing:4px;color:#efe6c9;
   text-shadow:0 0 6px rgba(0,0,0,.8), 0 0 22px rgba(232,178,61,.35);
   font-weight:bold;
   animation:titleFlicker 6s infinite;
@@ -194,28 +242,30 @@ html,body{
   margin-top:10px;font-size:clamp(12px,2.2vw,16px);color:var(--amber-dim);letter-spacing:2px;font-style:italic;
 }
 .menu-buttons{
-  margin-top:44px;display:flex;flex-direction:column;gap:14px;align-items:center;
+  margin-top:40px;display:flex;flex-direction:column;gap:14px;align-items:center;
 }
 .menu-btn{
   background:rgba(10,10,10,.55);border:1px solid rgba(232,178,61,.4);
   color:var(--text-main);font-family:var(--font-main);letter-spacing:3px;
   font-size:15px;padding:12px 34px;min-width:220px;cursor:pointer;
-  transition:all .2s ease;
+  transition:all .15s ease;
 }
 .menu-btn:hover,.menu-btn:focus{
   background:rgba(232,178,61,.12);color:var(--amber);border-color:var(--amber);
   box-shadow:0 0 16px rgba(232,178,61,.25);
 }
-.menu-footer{margin-top:26px;font-size:11px;color:#5a5142;letter-spacing:1px;}
+.menu-btn:active{transform:scale(.97);background:rgba(232,178,61,.2);}
+.menu-footer{margin-top:22px;font-size:11px;color:#5a5142;letter-spacing:1px;}
+.menu-studio-tag{position:absolute;bottom:14px;left:0;right:0;text-align:center;font-size:10px;letter-spacing:3px;color:#4a4436;z-index:10;}
 
 /* panel screens (how to play / credits) */
 .panel-screen{background:#000;}
 .panel-box{
-  position:relative;z-index:5;max-width:640px;width:90%;max-height:82vh;overflow-y:auto;
+  position:relative;z-index:5;max-width:660px;width:90%;max-height:82vh;overflow-y:auto;
   background:rgba(10,9,7,.85);border:1px solid rgba(232,178,61,.3);padding:26px 28px;
 }
 .panel-box h2{letter-spacing:4px;color:var(--amber);font-size:20px;margin:0 0 16px;}
-.panel-box h3{letter-spacing:2px;color:var(--text-main);font-size:14px;margin:18px 0 6px;color:var(--amber-dim);}
+.panel-box h3{letter-spacing:2px;font-size:13px;margin:18px 0 6px;color:var(--amber-dim);}
 .panel-box p,.panel-box li{font-size:13px;line-height:1.7;color:#cfc6ab;}
 .panel-box ul{margin:6px 0;padding-left:20px;}
 .back-btn{
@@ -231,23 +281,32 @@ html,body{
 .cine-stage{position:absolute;inset:0;overflow:hidden;background:#000;}
 .cine-caption{
   position:relative;z-index:10;text-align:center;padding:0 20px;
-  font-size:clamp(16px,3.6vw,26px);letter-spacing:2px;color:#efe6c9;
+  font-size:clamp(15px,3.2vw,24px);letter-spacing:2px;color:#efe6c9;
   opacity:0;transition:opacity 1.2s ease;
   text-shadow:0 0 10px rgba(0,0,0,.9);
 }
 .cine-caption.show{opacity:1;}
 .cine-time{
-  position:relative;z-index:10;font-size:clamp(26px,6vw,46px);letter-spacing:4px;color:var(--amber);
+  position:relative;z-index:10;font-size:clamp(24px,5.6vw,42px);letter-spacing:4px;color:var(--amber);
   opacity:0;transition:opacity 1s ease;text-shadow:0 0 14px rgba(232,178,61,.4);
 }
 .cine-time.show{opacity:1;}
 
-.scene-hallway{
-  position:absolute;inset:0;
-  background:linear-gradient(#0a0908,#000 80%);
-}
+.scene-hallway{position:absolute;inset:0;background:linear-gradient(#0a0908,#000 80%);}
 .scene-hallway .hall-perspective,.scene-hallway .hall-floor,.scene-hallway .hall-ceiling,
-.scene-hallway .hall-wall-l,.scene-hallway .hall-wall-r,.scene-hallway .hall-lockers{opacity:.8;}
+.scene-hallway .hall-wall-l,.scene-hallway .hall-wall-r,.scene-hallway .hall-lockers{opacity:.85;}
+
+.scene-darkroom{position:absolute;inset:0;background:#050504;}
+.dr-desk-row{position:absolute;bottom:10%;display:flex;gap:8px;}
+.dr-desk-row span{width:26px;height:18px;background:#171410;border:1px solid #060503;}
+.dr-window{position:absolute;top:12%;right:10%;width:16%;height:30%;background:linear-gradient(#0c1420,#050810);border:3px solid #111;}
+.dr-moon{position:absolute;width:20px;height:20px;border-radius:50%;background:#d8d2b4;box-shadow:0 0 12px rgba(216,210,180,.4);top:20%;right:30%;}
+
+.scene-clockcu{position:absolute;inset:0;background:#000;display:flex;align-items:center;justify-content:center;}
+.clock-big{width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,#e9e1c5,#a99f78 85%);border:6px solid #201a10;position:relative;box-shadow:0 0 40px rgba(0,0,0,.7);}
+.clock-big .hand{position:absolute;left:50%;top:50%;transform-origin:0 0;background:#161200;}
+.clock-big .hh{width:5px;height:42px;transform:translate(-2.5px,-42px) rotate(350deg);}
+.clock-big .mm{width:3px;height:58px;transform:translate(-1.5px,-58px) rotate(280deg);}
 
 .scene-bathroom{position:absolute;inset:0;background:#0a0b0c;}
 .bathroom-tiles{
@@ -255,26 +314,26 @@ html,body{
   background-image:
     linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
-  background-size:36px 36px;
-  background-color:#111417;
+  background-size:36px 36px;background-color:#111417;
 }
-.stall-row{position:absolute;left:8%;right:8%;bottom:0;top:30%;display:flex;gap:10px;}
+.bathroom-entry-sign{
+  position:absolute;top:14%;left:50%;transform:translateX(-50%);
+  font-size:11px;letter-spacing:5px;color:#7a8a90;border:1px solid #2a3438;padding:6px 14px;background:rgba(0,0,0,.4);
+}
+.stall-row{position:absolute;left:8%;right:8%;bottom:0;top:30%;display:flex;gap:10px;transition:transform 2.5s ease;}
+.stall-row.zoomed{transform:scale(2.1) translateX(6%);}
 .stall{flex:1;background:linear-gradient(180deg,#20323a,#101a1e);border:2px solid #060a0c;position:relative;}
 .stall::before{content:'';position:absolute;top:8%;bottom:8%;right:6px;width:4px;background:#050708;}
 .stall.player-stall{outline:1px solid rgba(232,178,61,.25);}
 .stall-door-shut{
   position:absolute;inset:0;background:linear-gradient(180deg,#1b2b32,#0d1417);
-  transform-origin:left center; transition:transform 1.4s ease;
+  transform-origin:left center; transition:transform 1.2s ease;
 }
 
 .scene-blackout{position:absolute;inset:0;background:#000;}
-.intercom-box{
-  position:relative;z-index:5;text-align:center;
-}
 .intercom-icon{
   width:64px;height:64px;margin:0 auto 18px;border-radius:6px;
-  background:linear-gradient(180deg,#2a2a2a,#111);border:2px solid #444;
-  position:relative;
+  background:linear-gradient(180deg,#2a2a2a,#111);border:2px solid #444;position:relative;
 }
 .intercom-icon::before{
   content:'';position:absolute;left:50%;top:50%;width:34px;height:34px;
@@ -283,23 +342,16 @@ html,body{
 }
 .intercom-icon.live::after{
   content:'';position:absolute;top:6px;right:6px;width:6px;height:6px;border-radius:50%;
-  background:var(--alert-bright);box-shadow:0 0 8px var(--alert-bright);
-  animation:pulseDot 1s infinite;
+  background:var(--alert-bright);box-shadow:0 0 8px var(--alert-bright);animation:pulseDot 1s infinite;
 }
 @keyframes pulseDot{0%,100%{opacity:1;}50%{opacity:.2;}}
 
-.scene-exterior{
-  position:absolute;inset:0;
-  background:linear-gradient(180deg,#050608 0%,#0a0d10 55%,#0f1215 100%);
-}
+.scene-exterior{position:absolute;inset:0;background:linear-gradient(180deg,#050608 0%,#0a0d10 55%,#0f1215 100%);}
 .school-silhouette{
-  position:absolute;left:10%;right:10%;bottom:0;height:50%;
-  background:#000;
+  position:absolute;left:10%;right:10%;bottom:0;height:50%;background:#000;
   clip-path:polygon(0 100%,0 40%,15% 40%,15% 15%,30% 15%,30% 40%,70% 40%,70% 15%,85% 15%,85% 40%,100% 40%,100% 100%);
 }
-.school-silhouette .win{
-  position:absolute;width:3%;height:6%;background:rgba(232,178,61,.06);
-}
+.school-silhouette .win{position:absolute;width:3%;height:6%;background:rgba(232,178,61,.06);}
 .sunrise{
   position:absolute;left:0;right:0;bottom:0;height:0%;
   background:linear-gradient(to top, rgba(255,150,80,.5), rgba(255,150,80,0));
@@ -315,147 +367,139 @@ html,body{
 .room-scene{
   position:absolute;inset:0;
   background:linear-gradient(180deg,#141210,#0a0908 70%,#060504);
-  filter:brightness(1);
-  transition:filter .25s ease;
+  filter:brightness(1);transition:filter .25s ease;
 }
-.room-scene.flashlight-on{filter:brightness(1.55) contrast(1.05);}
-.room-scene.blackout{filter:brightness(.25) saturate(0.4);}
-.room-ceiling{
-  position:absolute;top:0;left:0;right:0;height:14%;
-  background:linear-gradient(180deg,#0c0b0a,#000);
-}
+.room-scene.flashlight-on{filter:brightness(1.5) contrast(1.05);}
+.room-scene.blackout{filter:brightness(.22) saturate(0.4);transition:filter 2.4s ease;}
+.room-ceiling{position:absolute;top:0;left:0;right:0;height:13%;background:linear-gradient(180deg,#0c0b0a,#000);}
 .room-fl-light{
   position:absolute;top:3%;left:30%;width:40%;height:6px;
   background:linear-gradient(90deg, rgba(255,244,214,0), rgba(255,244,214,.85), rgba(255,244,214,0));
-  filter:blur(1px);
-  animation:lightBuzz 5s infinite;
+  filter:blur(1px);animation:lightBuzz 5s infinite;
 }
 .room-back-wall{
-  position:absolute;top:14%;left:0;right:0;bottom:38%;
+  position:absolute;top:13%;left:0;right:0;bottom:38%;
   background:
     linear-gradient(180deg, rgba(60,70,55,.12), rgba(0,0,0,0) 50%),
     linear-gradient(#1a2a30,#101c20 60%,#0b1416);
 }
-.room-lockers{
-  position:absolute;left:2%;top:20%;bottom:0;width:16%;
-  display:flex;flex-direction:column;gap:2px;
-}
-.room-lockers .locker{flex:1;}
+.room-cables{position:absolute;left:38%;top:14%;width:24%;height:8%;
+  background-image:linear-gradient(180deg,transparent 46%,#1a1a18 46% 50%,transparent 50%),linear-gradient(180deg,transparent 60%,#141412 60% 64%,transparent 64%);
+  opacity:.6;}
+.room-panel{position:absolute;left:34%;top:22%;width:8%;height:12%;background:#1c1e1c;border:1px solid #060706;}
+.room-panel::after{content:'';position:absolute;inset:14%;background:repeating-linear-gradient(90deg,#333 0 3px,#161616 3px 6px);}
 .room-vent{
-  position:absolute;right:4%;top:16%;width:15%;height:16%;
-  background:linear-gradient(180deg,#2a2c2d,#101112);
-  border:2px solid #000;
+  position:absolute;left:50%;top:15%;width:13%;height:8%;transform:translateX(-50%);
+  background:linear-gradient(180deg,#2a2c2d,#101112);border:2px solid #000;
   background-image:repeating-linear-gradient(0deg, rgba(0,0,0,.6) 0 3px, transparent 3px 9px);
 }
 .warning-sign{
-  position:absolute;top:22%;left:44%;width:60px;height:60px;
+  position:absolute;top:24%;left:44%;width:52px;height:52px;
   background:#c99a1f;clip-path:polygon(50% 0,100% 100%,0 100%);
   display:flex;align-items:flex-end;justify-content:center;padding-bottom:4px;
-  font-size:9px;color:#1a1200;font-weight:bold;letter-spacing:1px;text-align:center;
-  opacity:.85;
+  font-size:8px;color:#1a1200;font-weight:bold;letter-spacing:1px;text-align:center;opacity:.85;
 }
 .wall-clock{
-  position:absolute;top:16%;right:20%;width:64px;height:64px;border-radius:50%;
+  position:absolute;top:16%;right:26%;width:58px;height:58px;border-radius:50%;
   background:radial-gradient(circle,#e9e1c5,#c9c19f 80%);border:3px solid #2a2620;
 }
 .wall-clock .hand{position:absolute;left:50%;top:50%;transform-origin:0 0;background:#161200;}
-.wall-clock .hand.hh{width:2px;height:16px;transform:translate(-1px,-16px) rotate(0deg);}
-.wall-clock .hand.mm{width:1.5px;height:22px;transform:translate(-.75px,-22px) rotate(0deg);}
-
-.room-door-frame{
-  position:absolute;right:0;top:14%;bottom:38%;width:9%;
-  background:linear-gradient(90deg,#050505,#0d0d0d);
-  border-left:3px solid #000;
-  overflow:hidden;
-}
-.room-door-frame .door-glow{
-  position:absolute;inset:0;background:radial-gradient(circle at 50% 60%, rgba(194,59,59,.0), transparent 70%);
-  transition:background .4s ease;
-}
-.room-door-frame.threat .door-glow{
-  background:radial-gradient(circle at 50% 60%, rgba(194,59,59,.35), transparent 70%);
-}
-.door-figure{
-  position:absolute;left:50%;bottom:0;width:70%;height:88%;
-  transform:translateX(-50%);
-  background:#000;
-  clip-path:polygon(35% 0%,65% 0%,78% 12%,70% 30%,85% 38%,100% 100%,0% 100%,15% 38%,30% 30%,22% 12%);
-  opacity:0;transition:opacity .5s ease;
-  box-shadow:0 0 20px 4px rgba(0,0,0,.6) inset;
-}
-.room-door-frame.threat .door-figure{opacity:.28;}
-.room-scene.flashlight-on .room-door-frame.threat .door-figure{opacity:1;}
+.wall-clock .hand.hh{width:2px;height:14px;transform:translate(-1px,-14px) rotate(0deg);}
+.wall-clock .hand.mm{width:1.5px;height:20px;transform:translate(-.75px,-20px) rotate(0deg);}
 
 .room-desk{
   position:absolute;left:0;right:0;bottom:0;height:38%;
   background:linear-gradient(180deg,#3a2a1c,#1c130c);
   clip-path:polygon(0 30%,100% 30%,100% 100%,0 100%);
 }
-.room-desk::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:14%;
-  background:linear-gradient(180deg,#5a4028,#3a2a1c);
-}
-.desk-papers{
-  position:absolute;left:6%;bottom:26%;width:14%;height:10%;
-  background:var(--paper);transform:rotate(-4deg);box-shadow:2px 2px 0 rgba(0,0,0,.4);
-}
-.desk-papers::after{
-  content:'';position:absolute;left:20%;top:60%;width:16%;height:16%;background:var(--paper);
-  transform:rotate(10deg);box-shadow:2px 2px 0 rgba(0,0,0,.4);
-}
-.desk-mug{
-  position:absolute;left:24%;bottom:27%;width:3%;height:6%;background:#4a4a4a;border-radius:2px 2px 4px 4px;
-}
-.desk-toolbox{
-  position:absolute;right:8%;bottom:26%;width:10%;height:7%;background:linear-gradient(180deg,#8a3030,#4a1414);
-  border:1px solid #200a0a;
-}
+.room-desk::before{content:'';position:absolute;top:0;left:0;right:0;height:14%;background:linear-gradient(180deg,#5a4028,#3a2a1c);}
+.desk-lamp{position:absolute;left:4%;bottom:32%;width:5%;height:12%;}
+.desk-lamp::before{content:'';position:absolute;bottom:0;left:40%;width:20%;height:70%;background:#2a221a;}
+.desk-lamp::after{content:'';position:absolute;top:0;left:0;right:0;height:40%;background:radial-gradient(ellipse at 50% 100%, rgba(255,220,150,.5), transparent 75%);}
+.desk-papers{position:absolute;left:8%;bottom:26%;width:12%;height:9%;background:var(--paper);transform:rotate(-4deg);box-shadow:2px 2px 0 rgba(0,0,0,.4);}
+.desk-papers::after{content:'';position:absolute;left:20%;top:60%;width:16%;height:16%;background:var(--paper);transform:rotate(10deg);box-shadow:2px 2px 0 rgba(0,0,0,.4);}
+.desk-mug{position:absolute;left:22%;bottom:27%;width:3%;height:6%;background:#4a4a4a;border-radius:2px 2px 4px 4px;}
+.desk-toolbox{position:absolute;right:20%;bottom:26%;width:9%;height:7%;background:linear-gradient(180deg,#8a3030,#4a1414);border:1px solid #200a0a;}
+.desk-intercom{position:absolute;right:6%;bottom:27%;width:6%;height:8%;background:linear-gradient(180deg,#2a2a2a,#111);border:1px solid #000;border-radius:3px;}
+.desk-intercom::after{content:'';position:absolute;inset:20%;border-radius:50%;background:repeating-radial-gradient(circle,#444 0 1.5px,#1a1a1a 1.5px 3px);}
 
 .crt-monitor-shell{
-  position:absolute;left:38%;bottom:20%;width:26%;min-width:180px;height:26%;
-  background:#1a1712;border:6px solid #100e0a;border-radius:8px;
-  box-shadow:0 8px 30px rgba(0,0,0,.7);
+  position:absolute;left:38%;bottom:20%;width:24%;min-width:170px;height:24%;
+  background:#1a1712;border:6px solid #100e0a;border-radius:8px;box-shadow:0 8px 30px rgba(0,0,0,.7);
 }
-.crt-monitor-screen{
-  position:absolute;inset:8%;background:#02120a;overflow:hidden;border-radius:3px;
-}
+.crt-monitor-screen{position:absolute;inset:8%;background:#02120a;overflow:hidden;border-radius:3px;}
 .crt-monitor-screen .mini-static{position:absolute;inset:0;opacity:.5;}
-.crt-monitor-label{
-  position:absolute;bottom:-22px;left:0;right:0;text-align:center;font-size:9px;color:#6a5c3a;letter-spacing:2px;
+.crt-monitor-label{position:absolute;bottom:-20px;left:0;right:0;text-align:center;font-size:8px;color:#6a5c3a;letter-spacing:2px;}
+
+/* ---- LEFT / RIGHT security doors ---- */
+.door-unit{position:absolute;top:13%;bottom:38%;width:15%;overflow:hidden;z-index:8;}
+.door-unit.left{left:0;}
+.door-unit.right{right:0;}
+.door-window{position:absolute;inset:0;background:linear-gradient(180deg,#0c1012,#04050a 70%,#020203);}
+.door-window .door-hall-glow{position:absolute;inset:0;background:radial-gradient(circle at 50% 75%, rgba(70,64,50,.16), transparent 70%);}
+.door-window .door-hall-tiles{
+  position:absolute;left:0;right:0;bottom:0;height:30%;
+  background-image:linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+  background-size:16px 16px;
 }
+.door-occupant{
+  position:absolute;left:50%;bottom:0;width:66%;height:82%;transform:translateX(-50%);
+  background:radial-gradient(ellipse at 50% 20%, var(--tcolor,#888) 0%, rgba(0,0,0,.92) 66%);
+  clip-path:polygon(35% 0%,65% 0%,78% 12%,70% 30%,85% 38%,100% 100%,0% 100%,15% 38%,30% 30%,22% 12%);
+  opacity:0;transition:opacity .4s ease;
+}
+.door-unit.occupied .door-occupant{opacity:.32;}
+.door-unit.flash-reveal.occupied .door-occupant{opacity:1;}
+.door-shutter{
+  position:absolute;left:0;right:0;top:0;height:100%;
+  background:repeating-linear-gradient(0deg,#3d4042 0 6px,#2b2d2f 6px 12px);
+  border:2px solid #17181a;transform:translateY(-102%);
+  transition:transform .5s cubic-bezier(.7,0,.3,1);
+  box-shadow:inset 0 -14px 22px rgba(0,0,0,.55);z-index:5;
+}
+.door-shutter::after{content:'';position:absolute;left:0;right:0;top:50%;height:6px;background:rgba(0,0,0,.4);}
+.door-unit.closed .door-shutter{transform:translateY(0%);}
+.door-warning{
+  position:absolute;top:6px;left:50%;transform:translateX(-50%);
+  width:11px;height:11px;border-radius:50%;background:#2a1414;z-index:9;
+  box-shadow:0 0 4px rgba(0,0,0,.6);
+}
+.door-unit.alert .door-warning{background:var(--alert-bright);box-shadow:0 0 12px var(--alert-bright);animation:pulseDot .5s infinite;}
+.door-side-label{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);z-index:9;
+  font-size:8px;letter-spacing:2px;color:#6a6a6a;background:rgba(0,0,0,.5);padding:1px 5px;}
 
 .room-controls{
   position:absolute;left:0;right:0;bottom:0;
-  display:flex;justify-content:center;gap:14px;padding:14px 10px calc(14px + env(safe-area-inset-bottom));
-  z-index:30;
-  background:linear-gradient(0deg, rgba(0,0,0,.75), rgba(0,0,0,0));
+  display:flex;justify-content:center;align-items:flex-end;gap:8px;flex-wrap:wrap;
+  padding:12px 8px calc(12px + env(safe-area-inset-bottom));
+  z-index:30;background:linear-gradient(0deg, rgba(0,0,0,.78), rgba(0,0,0,0));
 }
 .ctrl-btn{
   background:rgba(15,13,10,.85);border:1px solid rgba(232,178,61,.4);color:var(--text-main);
-  font-family:var(--font-main);letter-spacing:2px;font-size:13px;padding:12px 20px;
-  cursor:pointer;min-width:120px;text-align:center;transition:all .15s ease;
-  touch-action:manipulation;
+  font-family:var(--font-main);letter-spacing:1.5px;font-size:12px;padding:11px 16px;
+  cursor:pointer;min-width:96px;text-align:center;transition:all .15s ease;touch-action:manipulation;
 }
 .ctrl-btn:hover{border-color:var(--amber);color:var(--amber);}
 .ctrl-btn:active,.ctrl-btn.engaged{background:rgba(232,178,61,.22);color:var(--amber);border-color:var(--amber);}
 .ctrl-btn:disabled{opacity:.35;cursor:not-allowed;}
+.ctrl-btn.door-btn{min-width:104px;}
+.ctrl-btn.door-btn .dstate{display:block;font-size:9px;letter-spacing:1px;margin-top:3px;color:var(--crt-green);}
+.ctrl-btn.door-btn.is-closed .dstate{color:var(--alert-bright);}
+.ctrl-btn.door-left{border-color:rgba(61,111,232,.4);}
+.ctrl-btn.door-right{border-color:rgba(232,111,61,.4);}
 
 .hud{
   position:absolute;top:0;left:0;right:0;z-index:30;
   display:flex;justify-content:space-between;align-items:flex-start;
-  padding:14px 16px;pointer-events:none;
+  padding:12px 14px;pointer-events:none;
 }
 .hud-left,.hud-right{display:flex;flex-direction:column;gap:6px;}
-.hud-item{
-  font-size:12px;letter-spacing:2px;color:var(--amber);
-  background:rgba(0,0,0,.4);padding:4px 10px;border:1px solid rgba(232,178,61,.25);
-}
-.hud-power-bar{
-  width:120px;height:8px;background:rgba(255,255,255,.08);border:1px solid rgba(232,178,61,.3);margin-top:2px;
-}
+.hud-item{font-size:11px;letter-spacing:2px;color:var(--amber);background:rgba(0,0,0,.4);padding:4px 10px;border:1px solid rgba(232,178,61,.25);}
+.hud-power-bar{width:110px;height:8px;background:rgba(255,255,255,.08);border:1px solid rgba(232,178,61,.3);margin-top:2px;}
 .hud-power-fill{height:100%;background:linear-gradient(90deg,#e8b23d,#f2d27b);width:100%;transition:width .3s linear, background .3s;}
 .hud-power-fill.low{background:linear-gradient(90deg,#c23b3b,#ff7a4b);}
-.hud-night{font-size:13px;letter-spacing:3px;color:#efe6c9;}
+.hud-usage{font-size:10px;letter-spacing:2px;color:#8fae8f;margin-top:3px;}
+.hud-night{font-size:12px;letter-spacing:3px;color:#efe6c9;}
 .hud-threat{
   align-self:center;margin-top:2px;font-size:11px;letter-spacing:2px;color:var(--alert-bright);
   opacity:0;transition:opacity .3s ease;text-shadow:0 0 8px rgba(194,59,59,.7);
@@ -473,34 +517,19 @@ html,body{
    CAMERA MONITOR OVERLAY
    ============================================================ */
 #camMonitor{
-  position:absolute;inset:0;z-index:60;background:#000;
-  display:flex;flex-direction:column;
+  position:absolute;inset:0;z-index:60;background:#000;display:flex;flex-direction:column;
   opacity:0;pointer-events:none;transition:opacity .25s ease;
 }
 #camMonitor.open{opacity:1;pointer-events:auto;}
-.monitor-frame{
-  position:relative;flex:1;display:flex;flex-direction:column;
-  background:#000;
-  border:10px solid #0c0c0c;
-  box-shadow:inset 0 0 60px rgba(0,0,0,.9);
-}
+.monitor-frame{position:relative;flex:1;display:flex;flex-direction:column;background:#000;border:10px solid #0c0c0c;box-shadow:inset 0 0 60px rgba(0,0,0,.9);}
 .monitor-topbar{
-  display:flex;justify-content:space-between;align-items:center;
-  padding:8px 14px;font-size:11px;letter-spacing:2px;color:var(--crt-green);
-  text-shadow:0 0 6px rgba(127,255,176,.6);
-  background:linear-gradient(180deg, rgba(0,20,10,.6), transparent);
-  z-index:5;
+  display:flex;justify-content:space-between;align-items:center;padding:8px 14px;
+  font-size:11px;letter-spacing:2px;color:var(--crt-green);text-shadow:0 0 6px rgba(127,255,176,.6);
+  background:linear-gradient(180deg, rgba(0,20,10,.6), transparent);z-index:5;
 }
-.rec-dot{
-  display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--alert-bright);
-  margin-right:6px;animation:pulseDot 1s infinite;
-}
-.cam-feed-wrap{
-  position:relative;flex:1;overflow:hidden;background:#000;
-}
-.cam-scene{
-  position:absolute;inset:0;opacity:0;transition:opacity .15s ease;
-}
+.rec-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--alert-bright);margin-right:6px;animation:pulseDot 1s infinite;}
+.cam-feed-wrap{position:relative;flex:1;overflow:hidden;background:#000;}
+.cam-scene{position:absolute;inset:0;opacity:0;transition:opacity .15s ease;}
 .cam-scene.active{opacity:1;}
 .cam-feed-static{position:absolute;inset:0;z-index:40;opacity:0;pointer-events:none;}
 .cam-feed-static.show{opacity:.9;}
@@ -510,79 +539,45 @@ html,body{
   font-size:clamp(16px,3vw,26px);letter-spacing:4px;color:#666;
 }
 .cam-signal-lost.show{opacity:1;}
-.cam-label-box{
-  position:absolute;bottom:10px;left:10px;z-index:20;font-size:11px;letter-spacing:2px;color:var(--crt-green);
-  text-shadow:0 0 6px rgba(127,255,176,.6);
-}
-.cam-clock{
-  position:absolute;bottom:10px;right:10px;z-index:20;font-size:11px;letter-spacing:1px;color:var(--crt-green);
-  text-shadow:0 0 6px rgba(127,255,176,.6);
-}
-.monitor-scanlines{
-  position:absolute;inset:0;z-index:30;pointer-events:none;
-  background:repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0 2px, rgba(0,0,0,.22) 2px 4px);
-}
-.monitor-noise-flicker{
-  position:absolute;inset:0;z-index:25;pointer-events:none;background:#fff;opacity:0;
-  animation:monFlicker 5.5s infinite;
-}
-@keyframes monFlicker{
-  0%,100%{opacity:0;}62%{opacity:0;}63%{opacity:.06;}64%{opacity:0;}91%{opacity:0;}92%{opacity:.09;}93%{opacity:0;}
-}
+.cam-label-box{position:absolute;bottom:10px;left:10px;z-index:20;font-size:11px;letter-spacing:2px;color:var(--crt-green);text-shadow:0 0 6px rgba(127,255,176,.6);}
+.cam-clock{position:absolute;bottom:10px;right:10px;z-index:20;font-size:11px;letter-spacing:1px;color:var(--crt-green);text-shadow:0 0 6px rgba(127,255,176,.6);}
+.monitor-scanlines{position:absolute;inset:0;z-index:30;pointer-events:none;background:repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0 2px, rgba(0,0,0,.22) 2px 4px);}
+.monitor-noise-flicker{position:absolute;inset:0;z-index:25;pointer-events:none;background:#fff;opacity:0;animation:monFlicker 5.5s infinite;}
+@keyframes monFlicker{0%,100%{opacity:0;}62%{opacity:0;}63%{opacity:.06;}64%{opacity:0;}91%{opacity:0;}92%{opacity:.09;}93%{opacity:0;}}
 
-/* generic scene furniture */
 .floor-plane{position:absolute;left:0;right:0;bottom:0;height:44%;}
 .ceiling-plane{position:absolute;left:0;right:0;top:0;height:18%;background:linear-gradient(#050505,#000);}
 .back-wall{position:absolute;left:0;right:0;top:18%;bottom:44%;}
-.persp-window{
-  position:absolute;top:14%;width:9%;height:34%;
-  background:linear-gradient(180deg,#0d1a26,#040810);
-  border:3px solid #1a1a1a;
-}
-.persp-window::after{
-  content:'';position:absolute;left:50%;top:0;bottom:0;width:2px;background:#1a1a1a;
-}
+.persp-window{position:absolute;top:14%;width:9%;height:34%;background:linear-gradient(180deg,#0d1a26,#040810);border:3px solid #1a1a1a;}
+.persp-window::after{content:'';position:absolute;left:50%;top:0;bottom:0;width:2px;background:#1a1a1a;}
 .moon{position:absolute;width:14px;height:14px;border-radius:50%;background:#dcd6b8;box-shadow:0 0 10px rgba(220,214,184,.5);}
 
 .scene-c1 .floor-plane{background:linear-gradient(#241d14,#0d0a06);clip-path:polygon(18% 100%,82% 100%,58% 0,42% 0);}
 .scene-c1 .back-wall{background:repeating-linear-gradient(90deg,#182226 0 30px,#1e2b30 30px 32px);}
 .scene-c1 .lockrow{position:absolute;bottom:44%;left:6%;right:6%;height:24%;display:flex;gap:2px;}
 .scene-c1 .lockrow .locker{flex:1;}
+.scene-c1 .trophycase{position:absolute;bottom:44%;right:6%;width:12%;height:24%;background:rgba(180,190,200,.08);border:2px solid #2a2a2a;}
 
 .scene-c2 .floor-plane{background:linear-gradient(#1c1a14,#0a0906);}
-.scene-c2 .cafe-table{
-  position:absolute;bottom:8%;width:16%;height:9%;background:linear-gradient(#5a4a30,#2a2010);
-  border:1px solid #100c06;
-}
+.scene-c2 .cafe-table{position:absolute;bottom:8%;width:16%;height:9%;background:linear-gradient(#5a4a30,#2a2010);border:1px solid #100c06;}
 .scene-c2 .back-wall{background:linear-gradient(#151a1a,#0a0d0d);}
 
 .scene-c3 .floor-plane{background:linear-gradient(#241f1a,#0f0c09);}
-.scene-c3 .court-circle{
-  position:absolute;bottom:6%;left:50%;width:120px;height:60px;transform:translateX(-50%);
-  border:2px solid rgba(230,220,190,.25);border-radius:50%;
-}
-.scene-c3 .hoop{
-  position:absolute;top:20%;left:50%;transform:translateX(-50%);width:50px;height:36px;
-}
+.scene-c3 .court-circle{position:absolute;bottom:6%;left:50%;width:120px;height:60px;transform:translateX(-50%);border:2px solid rgba(230,220,190,.25);border-radius:50%;}
+.scene-c3 .hoop{position:absolute;top:20%;left:50%;transform:translateX(-50%);width:50px;height:36px;}
 .scene-c3 .hoop::before{content:'';position:absolute;top:0;left:0;right:0;height:6px;background:#c9c9c9;}
 .scene-c3 .hoop::after{content:'';position:absolute;top:6px;left:8px;right:8px;bottom:0;border:2px solid #d9822b;border-top:none;}
 .scene-c3 .back-wall{background:linear-gradient(#141712,#0a0b08);}
 .scene-c3 .bleachers{position:absolute;left:0;bottom:44%;width:14%;height:26%;background:repeating-linear-gradient(180deg,#2a2a24 0 5px,#161612 5px 10px);}
 
 .scene-c4 .floor-plane{background:linear-gradient(#1a1e1c,#090a09);}
-.scene-c4 .lab-table{
-  position:absolute;bottom:10%;width:20%;height:8%;background:#2c3630;border:1px solid #0a0f0c;
-}
+.scene-c4 .lab-table{position:absolute;bottom:10%;width:20%;height:8%;background:#2c3630;border:1px solid #0a0f0c;}
 .scene-c4 .lab-table::after{content:'';position:absolute;top:-40%;left:10%;width:6%;height:40%;background:#3d4a42;}
 .scene-c4 .back-wall{background:linear-gradient(#151915,#080a08);}
 .scene-c4 .cabinet{position:absolute;top:20%;width:8%;height:22%;background:#22281f;border:1px solid #0a0d08;}
 
 .scene-c5 .floor-plane{background:linear-gradient(#1c160f,#0a0805);}
-.scene-c5 .shelf{
-  position:absolute;top:20%;bottom:44%;width:9%;
-  background:#241a10;border:1px solid #100b06;
-  display:flex;flex-direction:column;justify-content:space-around;padding:4% 6%;
-}
+.scene-c5 .shelf{position:absolute;top:20%;bottom:44%;width:9%;background:#241a10;border:1px solid #100b06;display:flex;flex-direction:column;justify-content:space-around;padding:4% 6%;}
 .scene-c5 .shelf span{display:block;height:10%;background:#7a5a30;}
 .scene-c5 .shelf span:nth-child(2n){background:#5a3a2a;}
 .scene-c5 .shelf span:nth-child(3n){background:#8a6a3a;}
@@ -614,16 +609,11 @@ html,body{
 
 .cam-occupants{position:absolute;inset:0;z-index:15;}
 .teacher-figure{
-  position:absolute;bottom:6%;left:50%;width:15%;max-width:76px;
-  aspect-ratio:1/2.5;transform:translateX(-50%);
-  background:#000;
-  clip-path:polygon(35% 0%,65% 0%,78% 12%,70% 30%,85% 38%,100% 100%,0% 100%,15% 38%,30% 30%,22% 12%);
+  position:absolute;bottom:6%;left:50%;width:15%;max-width:76px;aspect-ratio:1/2.5;transform:translateX(-50%);
+  background:#000;clip-path:polygon(35% 0%,65% 0%,78% 12%,70% 30%,85% 38%,100% 100%,0% 100%,15% 38%,30% 30%,22% 12%);
   box-shadow:0 0 24px 6px rgba(0,0,0,.7) inset;
 }
-.teacher-figure::after{
-  content:'';position:absolute;inset:0;clip-path:inherit;
-  box-shadow:inset 0 0 0 2px var(--tcolor,#888);opacity:.55;
-}
+.teacher-figure::after{content:'';position:absolute;inset:0;clip-path:inherit;box-shadow:inset 0 0 0 2px var(--tcolor,#888);opacity:.55;}
 .teacher-figure.pose-still{animation:tSway 3s ease-in-out infinite;}
 .teacher-figure.pose-bounce{animation:tBounce 1s ease-in-out infinite;}
 .teacher-figure.pose-flicker{animation:tFlicker 1.4s steps(2) infinite;}
@@ -634,46 +624,28 @@ html,body{
 @keyframes tFlicker{0%,100%{opacity:1;}50%{opacity:.3;}}
 @keyframes tTilt{0%,100%{transform:translateX(-50%) rotate(0deg);}50%{transform:translateX(-50%) rotate(-3deg);}}
 
-.monitor-map{
-  padding:10px 12px calc(10px + env(safe-area-inset-bottom));
-  background:#050505;border-top:2px solid #111;
-  display:grid;grid-template-columns:repeat(5,1fr);gap:6px;
-  z-index:5;
-}
-.map-btn{
-  background:#0d0d0d;border:1px solid #262626;color:#8a8a8a;
-  font-family:var(--font-main);font-size:9px;letter-spacing:1px;
-  padding:8px 2px;cursor:pointer;text-align:center;line-height:1.5;
-}
+.monitor-map{padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:#050505;border-top:2px solid #111;display:grid;grid-template-columns:repeat(5,1fr);gap:6px;z-index:5;}
+.map-btn{background:#0d0d0d;border:1px solid #262626;color:#8a8a8a;font-family:var(--font-main);font-size:9px;letter-spacing:1px;padding:8px 2px;cursor:pointer;text-align:center;line-height:1.5;white-space:pre-line;}
 .map-btn.current{border-color:var(--crt-green);color:var(--crt-green);box-shadow:0 0 8px rgba(127,255,176,.3);}
 .map-btn.lost{color:#5a2020;border-color:#3a1414;}
-.cam-close-btn{
-  position:absolute;top:8px;right:10px;z-index:10;
-  background:rgba(0,0,0,.5);border:1px solid rgba(127,255,176,.4);color:var(--crt-green);
-  font-family:var(--font-main);font-size:11px;padding:6px 12px;letter-spacing:2px;cursor:pointer;
-}
+.cam-close-btn{position:absolute;top:8px;right:10px;z-index:10;background:rgba(0,0,0,.5);border:1px solid rgba(127,255,176,.4);color:var(--crt-green);font-family:var(--font-main);font-size:11px;padding:6px 12px;letter-spacing:2px;cursor:pointer;}
 
 /* ============================================================
    JUMPSCARE / GAME OVER
    ============================================================ */
 #screen-jumpscare{background:#000;}
-.scare-flash{
-  position:absolute;inset:0;background:#fff;opacity:0;
-}
+.scare-flash{position:absolute;inset:0;background:#fff;opacity:0;}
 .scare-flash.go{animation:scareFlashAnim .5s steps(3) 1;}
 @keyframes scareFlashAnim{0%{opacity:0;}20%{opacity:1;}40%{opacity:0;}60%{opacity:.8;}80%{opacity:0;}100%{opacity:0;}}
 .scare-figure{
-  position:absolute;left:50%;bottom:0;width:38%;max-width:280px;height:78%;
-  transform:translateX(-50%) scale(.4);opacity:0;
+  position:absolute;left:50%;bottom:0;width:38%;max-width:280px;height:78%;transform:translateX(-50%) scale(.4);opacity:0;
   background:radial-gradient(ellipse at 50% 22%, var(--tcolor,#c23b3b) 0%, rgba(0,0,0,.85) 65%);
   clip-path:polygon(35% 0%,65% 0%,78% 12%,70% 30%,85% 38%,100% 100%,0% 100%,15% 38%,30% 30%,22% 12%);
   box-shadow:0 0 70px 20px var(--tcolor,#c23b3b);
 }
 .scare-figure::after{
   content:'';position:absolute;inset:0;clip-path:inherit;
-  background:
-    radial-gradient(circle at 38% 15%, #fff 0 3px, transparent 5px),
-    radial-gradient(circle at 62% 15%, #fff 0 3px, transparent 5px);
+  background:radial-gradient(circle at 38% 15%, #fff 0 3px, transparent 5px),radial-gradient(circle at 62% 15%, #fff 0 3px, transparent 5px);
   filter:drop-shadow(0 0 8px #fff);
 }
 .scare-figure.go{animation:scareZoom .45s ease-out forwards;}
@@ -684,11 +656,10 @@ html,body{
   30%{transform:translate(-6px,6px);}40%{transform:translate(8px,2px);}50%{transform:translate(-5px,-6px);}
   60%{transform:translate(6px,5px);}70%{transform:translate(-7px,-3px);}80%{transform:translate(5px,4px);}90%{transform:translate(-4px,-2px);}
 }
-.caught-text{
-  position:relative;z-index:10;text-align:center;opacity:0;transition:opacity .8s ease;
-}
+.caught-text{position:relative;z-index:10;text-align:center;opacity:0;transition:opacity .8s ease;}
 .caught-text.show{opacity:1;}
 .caught-title{font-size:clamp(30px,7vw,58px);letter-spacing:6px;color:var(--alert-bright);text-shadow:0 0 20px rgba(194,59,59,.6);}
+.caught-by{margin-top:8px;font-size:12px;letter-spacing:3px;color:#9a7a4a;}
 .caught-sub{margin-top:12px;font-size:14px;letter-spacing:2px;color:var(--amber-dim);font-style:italic;}
 .caught-buttons{margin-top:32px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
 
@@ -702,7 +673,6 @@ html,body{
 .victory-msg{font-size:clamp(18px,4vw,30px);letter-spacing:3px;color:#efe6c9;}
 .victory-night{margin-top:22px;font-size:14px;letter-spacing:3px;color:var(--amber-dim);}
 
-/* shared buttons for scare/victory screens */
 .big-btn{
   background:rgba(10,10,10,.6);border:1px solid rgba(232,178,61,.4);color:var(--text-main);
   font-family:var(--font-main);letter-spacing:2px;font-size:14px;padding:12px 26px;cursor:pointer;
@@ -711,38 +681,34 @@ html,body{
 
 /* responsive */
 @media (max-width:640px){
-  .room-controls{gap:8px;}
-  .ctrl-btn{padding:11px 14px;min-width:92px;font-size:11px;}
-  .hud-item{font-size:10px;padding:3px 7px;}
-  .hud-power-bar{width:84px;}
+  .room-controls{gap:6px;}
+  .ctrl-btn{padding:9px 10px;min-width:70px;font-size:9.5px;}
+  .ctrl-btn.door-btn{min-width:76px;}
+  .hud-item{font-size:9px;padding:3px 6px;}
+  .hud-power-bar{width:70px;}
   .crt-monitor-shell{left:30%;width:40%;bottom:22%;height:22%;}
   .panel-box{padding:18px 16px;}
   .monitor-topbar{padding-right:78px;font-size:9px;}
   .cam-close-btn{top:6px;right:6px;padding:5px 9px;font-size:9px;}
   .monitor-map{grid-template-columns:repeat(2,1fr);}
+  .door-unit{width:20%;}
 }
 @media (max-height:480px){
   .menu-buttons{margin-top:20px;gap:8px;}
   .menu-btn{padding:8px 22px;font-size:13px;}
 }
-canvas.noise-canvas{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;}
 </style>
 </head>
 <body>
 <div id="app">
 
-  <!-- ================= INTRO CREDITS ================= -->
+  <!-- ================= PRE-TITLE CINEMATIC (exterior + HAMGAMES) ================= -->
   <div id="screen-intro" class="screen active">
-    <div class="intro-hall"></div>
-    <div class="dust-layer" id="dustIntro"></div>
-    <div class="intro-text" id="introText1">
-      <div class="intro-title">WEDDINGTON MIDDLE SCHOOL</div>
-    </div>
-    <div class="intro-text" id="introText2" style="position:absolute;">
-      <div class="intro-sub">AFTER HOURS</div>
-    </div>
+    <div class="exterior-stage" id="exteriorStage"></div>
+    <div id="introTextWrap" style="position:relative;z-index:5;text-align:center;"></div>
+    <canvas class="noise-canvas grain-canvas" id="grainCanvas"></canvas>
     <button class="skip-btn" id="skipIntroBtn">SKIP &gt;</button>
-    <div class="crt-overlay"></div><div class="vignette"></div>
+    <div class="vignette"></div>
   </div>
 
   <!-- ================= MAIN MENU ================= -->
@@ -750,11 +716,13 @@ canvas.noise-canvas{position:absolute;inset:0;width:100%;height:100%;image-rende
     <div class="hall-bg">
       <div class="hall-perspective">
         <div class="hall-ceiling"></div>
+        <div class="hall-vent"></div>
         <div class="hall-floor"></div>
         <div class="hall-wall-l"></div>
         <div class="hall-wall-r"></div>
         <div class="hall-lockers" id="menuLockers"></div>
         <div class="hall-light"></div>
+        <div class="hall-shadow-figure"></div>
       </div>
     </div>
     <div class="dust-layer" id="dustMenu"></div>
@@ -768,6 +736,7 @@ canvas.noise-canvas{position:absolute;inset:0;width:100%;height:100%;image-rende
       </div>
       <div class="menu-footer" id="menuProgress"></div>
     </div>
+    <div class="menu-studio-tag">A HAMGAMES ORIGINAL</div>
     <div class="crt-overlay"></div><div class="vignette"></div><div class="flicker-layer"></div>
   </div>
 
@@ -776,15 +745,17 @@ canvas.noise-canvas{position:absolute;inset:0;width:100%;height:100%;image-rende
     <div class="hall-bg"><div class="hall-perspective"><div class="hall-ceiling"></div><div class="hall-floor"></div></div></div>
     <div class="panel-box">
       <h2>HOW TO PLAY</h2>
-      <p>You are hiding inside Weddington Middle School after hours. You must survive from <strong>12:00 AM</strong> until <strong>6:00 AM</strong> for five nights.</p>
+      <p>You are hiding inside Weddington Middle School after hours. Survive from <strong>12:00 AM</strong> to <strong>6:00 AM</strong>, five nights in a row.</p>
+      <h3>LEFT &amp; RIGHT DOORS</h3>
+      <p>Your security room has two entrances. Press LEFT DOOR or RIGHT DOOR to slam the heavy shutter shut. A closed door cannot be entered &mdash; but it drains power fast, so don&rsquo;t leave them closed forever.</p>
       <h3>SECURITY CAMERAS</h3>
-      <p>Press CAMERAS to open the monitor and check the ten camera feeds around the school. Watching the cameras is the only way to track where the teachers are.</p>
+      <p>Press CAMERAS to open the monitor and check the ten feeds around the school. It&rsquo;s the only way to track a teacher&rsquo;s route before they reach your door &mdash; but you can&rsquo;t see your own doors while the monitor is open, so listen carefully.</p>
       <h3>THE TEACHERS</h3>
-      <p>Five teachers patrol the halls looking for students. Each one moves differently &mdash; learn their patterns. If a teacher reaches the door outside the security room, you must catch them with your flashlight in time or they will get in.</p>
+      <p>Five teachers patrol the halls. Each moves differently &mdash; learn their patterns. When one reaches a doorway, a warning light above that door will flash and you&rsquo;ll hear them. Close that door before time runs out, or they will get in.</p>
       <h3>FLASHLIGHT</h3>
-      <p>Hold FLASHLIGHT to light up the doorway. If someone is standing there, keep the light on them to scare them off. It also drains power.</p>
+      <p>Hold FLASHLIGHT to brighten the room and clearly illuminate whoever is standing in your doorways. It drains power while held.</p>
       <h3>POWER</h3>
-      <p>Everything you use drains the school&rsquo;s backup power. If it runs out, the lights die and you become far more vulnerable. Use your systems wisely.</p>
+      <p>Everything you use drains the school&rsquo;s backup power &mdash; watch the USAGE meter. If power hits 0%, both doors force open, the lights die, and you become extremely vulnerable.</p>
       <h3>SURVIVE</h3>
       <p>Reach 6:00 AM without being caught. Good luck.</p>
       <button class="back-btn" id="backFromHowTo">&lt; BACK</button>
@@ -797,9 +768,10 @@ canvas.noise-canvas{position:absolute;inset:0;width:100%;height:100%;image-rende
     <div class="panel-box">
       <h2>CREDITS</h2>
       <p>FIVE NIGHTS AT SCHOOL</p>
-      <p>An original fan-made horror survival game.</p>
-      <p>All characters, locations, story, art, mechanics and sound are original creations, inspired by classic security-camera survival horror games.</p>
+      <p>A HAMGAMES ORIGINAL</p>
+      <p>An original fan-made horror survival game. All characters, locations, story, art, mechanics and sound are original creations, inspired by classic security-camera survival horror games.</p>
       <p style="margin-top:20px;">Weddington Middle School is a fictional setting.</p>
+      <p style="margin-top:20px;">Made by HAMGAMES.</p>
       <p style="margin-top:20px;">Thank you for playing.</p>
       <button class="back-btn" id="backFromCredits">&lt; BACK</button>
     </div>
@@ -820,18 +792,39 @@ canvas.noise-canvas{position:absolute;inset:0;width:100%;height:100%;image-rende
         <div class="room-ceiling"></div>
         <div class="room-fl-light"></div>
         <div class="room-back-wall"></div>
-        <div class="room-lockers" id="roomLockers"></div>
+        <div class="room-cables"></div>
+        <div class="room-panel"></div>
         <div class="room-vent"></div>
         <div class="warning-sign">CAUTION</div>
         <div class="wall-clock" id="wallClock"><div class="hand hh" id="clockHH"></div><div class="hand mm" id="clockMM"></div></div>
-        <div class="room-door-frame" id="doorFrame">
-          <div class="door-glow"></div>
-          <div class="door-figure" id="doorFigure"></div>
+
+        <div class="door-unit left" id="door-left">
+          <div class="door-window">
+            <div class="door-hall-glow"></div>
+            <div class="door-hall-tiles"></div>
+            <div class="door-occupant" id="doorOcc-left"></div>
+          </div>
+          <div class="door-shutter"></div>
+          <div class="door-warning" id="doorWarn-left"></div>
+          <div class="door-side-label">LEFT</div>
         </div>
+        <div class="door-unit right" id="door-right">
+          <div class="door-window">
+            <div class="door-hall-glow"></div>
+            <div class="door-hall-tiles"></div>
+            <div class="door-occupant" id="doorOcc-right"></div>
+          </div>
+          <div class="door-shutter"></div>
+          <div class="door-warning" id="doorWarn-right"></div>
+          <div class="door-side-label">RIGHT</div>
+        </div>
+
         <div class="room-desk">
+          <div class="desk-lamp"></div>
           <div class="desk-papers"></div>
           <div class="desk-mug"></div>
           <div class="desk-toolbox"></div>
+          <div class="desk-intercom"></div>
           <div class="crt-monitor-shell">
             <div class="crt-monitor-screen"><canvas class="noise-canvas mini-static" id="miniStatic"></canvas></div>
             <div class="crt-monitor-label">SECURITY MONITOR</div>
@@ -850,14 +843,17 @@ canvas.noise-canvas{position:absolute;inset:0;width:100%;height:100%;image-rende
       <div class="hud-right" style="align-items:flex-end;">
         <div class="hud-item">POWER: <span id="hudPowerText">100</span>%
           <div class="hud-power-bar"><div class="hud-power-fill" id="hudPowerFill"></div></div>
+          <div class="hud-usage" id="hudUsage">USAGE: &#9647;&#9647;&#9647;&#9647;&#9647;</div>
         </div>
       </div>
     </div>
     <div class="hud-threat" id="hudThreat">SOMETHING IS AT THE DOOR</div>
 
     <div class="room-controls">
+      <button class="ctrl-btn door-btn door-left" id="btnDoorLeft">LEFT DOOR<span class="dstate" id="doorLabel-left">OPEN</span></button>
       <button class="ctrl-btn" id="btnCameras">CAMERAS</button>
       <button class="ctrl-btn" id="btnFlashlight">FLASHLIGHT</button>
+      <button class="ctrl-btn door-btn door-right" id="btnDoorRight">RIGHT DOOR<span class="dstate" id="doorLabel-right">OPEN</span></button>
     </div>
 
     <!-- ===== Camera Monitor Overlay ===== -->
@@ -869,7 +865,6 @@ canvas.noise-canvas{position:absolute;inset:0;width:100%;height:100%;image-rende
           <span id="monitorClock">12:00 AM</span>
         </div>
         <div class="cam-feed-wrap" id="camFeedWrap">
-          <!-- 10 camera scenes injected by JS -->
           <canvas class="noise-canvas cam-feed-static" id="camStaticCanvas"></canvas>
           <div class="cam-signal-lost" id="camSignalLost">SIGNAL LOST</div>
           <div class="monitor-noise-flicker"></div>
@@ -887,6 +882,7 @@ canvas.noise-canvas{position:absolute;inset:0;width:100%;height:100%;image-rende
     <div class="scare-figure" id="scareFigure"></div>
     <div class="caught-text" id="caughtText">
       <div class="caught-title">CAUGHT.</div>
+      <div class="caught-by" id="caughtBy">MR. BROOME GOT IN.</div>
       <div class="caught-sub">You should&rsquo;ve stayed in class.</div>
       <div class="caught-buttons">
         <button class="big-btn" id="btnTryAgain">TRY AGAIN</button>
@@ -924,7 +920,6 @@ canvas.noise-canvas{position:absolute;inset:0;width:100%;height:100%;image-rende
 /* ============================================================
    UTILITIES
    ============================================================ */
-function $(sel){return document.querySelector(sel);}
 function $id(id){return document.getElementById(id);}
 function rand(min,max){return Math.random()*(max-min)+min;}
 function randInt(min,max){return Math.floor(rand(min,max+1));}
@@ -955,20 +950,15 @@ function showScreen(id){
 const Audio_ = (function(){
   let ctx=null, unlocked=false;
   let humOsc=null, humGain=null;
+  let windSrc=null, windGain=null;
   let noiseBuffer=null;
 
   function ensure(){
-    if(!ctx){
-      try{ ctx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ ctx=null; }
-    }
+    if(!ctx){ try{ ctx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ ctx=null; } }
     if(ctx && ctx.state==='suspended'){ ctx.resume().catch(()=>{}); }
     return ctx;
   }
-  function unlock(){
-    if(unlocked) return;
-    unlocked=true;
-    ensure();
-  }
+  function unlock(){ if(unlocked) return; unlocked=true; ensure(); }
   function getNoiseBuffer(){
     if(!ctx) return null;
     if(noiseBuffer) return noiseBuffer;
@@ -1005,19 +995,23 @@ const Audio_ = (function(){
     }catch(e){}
   }
   function click(){ tone(1200,0.04,'square',.05); tone(700,0.05,'square',.04); }
-  function bell(){
-    tone(880,1.4,'sine',.18); tone(1320,1.2,'sine',.10);
-    setTimeout(()=>{tone(660,1.6,'sine',.14);},550);
-  }
+  function bell(){ tone(880,1.4,'sine',.18); tone(1320,1.2,'sine',.10); setTimeout(()=>{tone(660,1.6,'sine',.14);},550); }
   function crackle(){ noiseBurst(0.35,.14,2200,'bandpass'); }
-  function footstep(){
-    noiseBurst(0.09,.22,220,'lowpass');
-  }
+  function footstep(){ noiseBurst(0.09,.22,220,'lowpass'); }
   function footstepPattern(count){
     let i=0;
     const iv=setInterval(()=>{ footstep(); i++; if(i>=count) clearInterval(iv); },420);
   }
   function staticSweep(dur){ noiseBurst(dur||0.4,.18,1800,'bandpass'); }
+  function doorClunk(){
+    noiseBurst(0.12,.3,450,'lowpass');
+    setTimeout(()=>tone(120,0.18,'square',.16),40);
+  }
+  function doorBang(){
+    noiseBurst(0.18,.28,700,'bandpass');
+    tone(90,0.3,'sawtooth',.18,60);
+  }
+  function knock(){ noiseBurst(0.06,.24,300,'lowpass'); }
   function startHum(){
     const c=ensure(); if(!c) return;
     stopHum();
@@ -1029,9 +1023,19 @@ const Audio_ = (function(){
       humOsc.start();
     }catch(e){}
   }
-  function stopHum(){
-    if(humOsc){ try{humOsc.stop();}catch(e){} humOsc=null; }
+  function stopHum(){ if(humOsc){ try{humOsc.stop();}catch(e){} humOsc=null; } }
+  function startWind(){
+    const c=ensure(); if(!c) return;
+    stopWind();
+    try{
+      windSrc=c.createBufferSource(); windSrc.buffer=getNoiseBuffer(); windSrc.loop=true;
+      const filt=c.createBiquadFilter(); filt.type='lowpass'; filt.frequency.value=340;
+      windGain=c.createGain(); windGain.gain.value=0.035;
+      windSrc.connect(filt); filt.connect(windGain); windGain.connect(c.destination);
+      windSrc.start();
+    }catch(e){}
   }
+  function stopWind(){ if(windSrc){ try{windSrc.stop();}catch(e){} windSrc=null; } }
   function jumpscare(kind){
     const c=ensure(); if(!c){ return; }
     const variants={
@@ -1059,20 +1063,23 @@ const Audio_ = (function(){
       window.speechSynthesis.speak(u);
     }catch(e){}
   }
-  return {unlock, tone, noiseBurst, click, bell, crackle, footstep, footstepPattern, staticSweep, startHum, stopHum, jumpscare, victoryChime, speak};
+  return {unlock, tone, noiseBurst, click, bell, crackle, footstep, footstepPattern, staticSweep,
+    doorClunk, doorBang, knock, startHum, stopHum, startWind, stopWind, jumpscare, victoryChime, speak};
 })();
 document.addEventListener('click', Audio_.unlock, {once:true});
 document.addEventListener('touchstart', Audio_.unlock, {once:true});
 
 /* ============================================================
-   NOISE CANVAS RENDERER (TV static)
+   NOISE CANVAS RENDERER (TV static / film grain)
    ============================================================ */
-function makeStaticRenderer(canvas){
+function makeStaticRenderer(canvas, opts){
+  opts = opts||{};
   const ctx = canvas.getContext('2d', {alpha:true});
   let running=false, raf=null;
   function resize(){
-    canvas.width = Math.max(20, Math.floor(canvas.clientWidth/4));
-    canvas.height = Math.max(20, Math.floor(canvas.clientHeight/4));
+    const div = opts.scale||4;
+    canvas.width = Math.max(20, Math.floor(canvas.clientWidth/div));
+    canvas.height = Math.max(20, Math.floor(canvas.clientHeight/div));
   }
   function drawFrame(){
     resize();
@@ -1087,7 +1094,7 @@ function makeStaticRenderer(canvas){
   function loop(){
     if(!running) return;
     drawFrame();
-    raf = setTimeout(()=>requestAnimationFrame(loop), 55);
+    raf = setTimeout(()=>requestAnimationFrame(loop), opts.interval||55);
   }
   function start(){ if(running) return; running=true; loop(); }
   function stop(){ running=false; if(raf) clearTimeout(raf); }
@@ -1095,7 +1102,7 @@ function makeStaticRenderer(canvas){
 }
 
 /* ============================================================
-   DUST PARTICLES
+   DUST / DECOR HELPERS
    ============================================================ */
 function spawnDust(container, count){
   if(!container || container.childElementCount) return;
@@ -1115,6 +1122,16 @@ function buildLockerRow(container,count){
     const l=document.createElement('div');
     l.className='locker';
     container.appendChild(l);
+  }
+}
+function buildExteriorWindows(container,count){
+  if(!container) return;
+  for(let i=0;i<count;i++){
+    const w=document.createElement('div');
+    w.className='ext-window'+(Math.random()<0.12?' lit':'');
+    w.style.left=(3+(i%8)*12)+'%';
+    w.style.top=(i<8?18:55)+'%';
+    container.appendChild(w);
   }
 }
 
@@ -1138,34 +1155,16 @@ const ALL_CAM_IDS = CAMS.map(c=>c.id);
 function buildCamSceneHTML(cam){
   let extra='';
   switch(cam.id){
-    case 'c1':
-      extra = '<div class="lockrow"></div>';
-      break;
-    case 'c2':
-      extra = '<div class="cafe-table" style="left:14%;"></div><div class="cafe-table" style="left:40%;"></div><div class="cafe-table" style="left:66%;"></div>';
-      break;
-    case 'c3':
-      extra = '<div class="court-circle"></div><div class="hoop"></div><div class="bleachers"></div>';
-      break;
-    case 'c4':
-      extra = '<div class="lab-table" style="left:14%;"></div><div class="lab-table" style="left:56%;"></div><div class="cabinet" style="left:6%;"></div><div class="cabinet" style="right:6%;"></div>';
-      break;
-    case 'c5':
-      extra = '<div class="shelf" style="left:8%;"><span></span><span></span><span></span><span></span></div><div class="shelf" style="left:22%;"><span></span><span></span><span></span><span></span></div><div class="shelf" style="right:8%;"><span></span><span></span><span></span><span></span></div>';
-      break;
+    case 'c1': extra = '<div class="lockrow"></div><div class="trophycase"></div>'; break;
+    case 'c2': extra = '<div class="cafe-table" style="left:14%;"></div><div class="cafe-table" style="left:40%;"></div><div class="cafe-table" style="left:66%;"></div>'; break;
+    case 'c3': extra = '<div class="court-circle"></div><div class="hoop"></div><div class="bleachers"></div>'; break;
+    case 'c4': extra = '<div class="lab-table" style="left:14%;"></div><div class="lab-table" style="left:56%;"></div><div class="cabinet" style="left:6%;"></div><div class="cabinet" style="right:6%;"></div>'; break;
+    case 'c5': extra = '<div class="shelf" style="left:8%;"><span></span><span></span><span></span><span></span></div><div class="shelf" style="left:22%;"><span></span><span></span><span></span><span></span></div><div class="shelf" style="right:8%;"><span></span><span></span><span></span><span></span></div>'; break;
     case 'c6':
-    case 'c7':
-      extra = '<div class="persp-window" style="left:10%;"><div class="moon" style="left:30%;top:20%;"></div></div><div class="persp-window" style="right:10%;"></div>';
-      break;
-    case 'c8':
-      extra = '<div class="stallwall"><span></span><span></span><span></span><span></span></div>';
-      break;
-    case 'c9':
-      extra = '<div class="whiteboard"></div><div class="desk-row" style="left:16%;"><span></span><span></span><span></span></div><div class="desk-row" style="left:56%;"><span></span><span></span><span></span></div>';
-      break;
-    case 'c10':
-      extra = '<div class="mailslots"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><div class="counter"></div>';
-      break;
+    case 'c7': extra = '<div class="persp-window" style="left:10%;"><div class="moon" style="left:30%;top:20%;"></div></div><div class="persp-window" style="right:10%;"></div>'; break;
+    case 'c8': extra = '<div class="stallwall"><span></span><span></span><span></span><span></span></div>'; break;
+    case 'c9': extra = '<div class="whiteboard"></div><div class="desk-row" style="left:16%;"><span></span><span></span><span></span></div><div class="desk-row" style="left:56%;"><span></span><span></span><span></span></div>'; break;
+    case 'c10': extra = '<div class="mailslots"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div><div class="counter"></div>'; break;
   }
   return '<div class="ceiling-plane"></div><div class="back-wall"></div><div class="floor-plane"></div>'+extra+
     '<div class="cam-occupants" id="occ-'+cam.id+'"></div>'+
@@ -1189,7 +1188,6 @@ function buildCameraDom(){
     const b=document.createElement('button');
     b.className='map-btn'; b.id='mapbtn-'+cam.id;
     b.textContent='CAM '+cam.num+'\n'+cam.name;
-    b.style.whiteSpace='pre-line';
     b.addEventListener('click', ()=>switchCamera(cam.id));
     map.appendChild(b);
   });
@@ -1201,49 +1199,49 @@ function buildCameraDom(){
 const TEACHER_BASE = {
   broome:{
     key:'broome', name:'MR. BROOME', color:'#c0453d', pose:'pose-still',
-    route:['c1','c6','c10'], baseCooldown:9.5, baseProb:0.16, doorTimeBase:15,
-    style:'normal'
+    route:['c1','c6','c10'], baseCooldown:9.5, baseProb:0.16, graceTimeBase:6.5,
+    primarySide:'right', style:'normal'
   },
   howard:{
     key:'howard', name:'MR. HOWARD', color:'#3d6fc0', pose:'pose-elusive',
-    route:['c9','c4','c6','c10'], baseCooldown:10.5, baseProb:0.14, doorTimeBase:14,
-    style:'vanish'
+    route:['c9','c4','c6','c10'], baseCooldown:10.5, baseProb:0.14, graceTimeBase:6.0,
+    primarySide:'left', style:'vanish'
   },
   perong:{
     key:'perong', name:'COACH PERONG', color:'#d19a2b', pose:'pose-bounce',
-    route:['c3','c7','c10'], baseCooldown:7.5, baseProb:0.20, doorTimeBase:13,
-    style:'aggressive', sfx:'footsteps'
+    route:['c3','c7','c10'], baseCooldown:7.5, baseProb:0.20, graceTimeBase:5.0,
+    primarySide:'right', style:'aggressive', sfx:'footsteps'
   },
   simmons:{
     key:'simmons', name:'COACH SIMMONS', color:'#7a4bc0', pose:'pose-flicker',
-    route:['c5','c2','c6','c10'], baseCooldown:9.5, baseProb:0.15, doorTimeBase:14,
-    style:'erratic', sfx:'flicker'
+    route:['c5','c2','c6','c10'], baseCooldown:9.5, baseProb:0.15, graceTimeBase:6.0,
+    primarySide:'left', style:'erratic', sfx:'flicker'
   },
   plunkett:{
     key:'plunkett', name:'MR. PLUNKETT', color:'#8a8a8a', pose:'pose-ominous',
-    route:ALL_CAM_IDS.concat(['c10']), baseCooldown:12.5, baseProb:0.10, doorTimeBase:11,
-    style:'random'
+    route:ALL_CAM_IDS.concat(['c10']), baseCooldown:12.5, baseProb:0.10, graceTimeBase:4.5,
+    primarySide:'random', style:'random'
   }
 };
 
 const NIGHT_CONFIG = {
   1:{duration:330, label:'THE DETENTION',
      active:{broome:true,howard:true,perong:true,simmons:false,plunkett:false},
-     speedMult:1.0, probMult:0.7, glitchChance:0.010, flickerChance:0.010, powerDrainMult:1.0, plunkettMult:0.15},
+     speedMult:1.0, probMult:0.65, glitchChance:0.010, flickerChance:0.010, powerDrainMult:1.0, plunkettMult:0.15, crossoverProb:0.05},
   2:{duration:345, label:'AFTER HOURS',
      active:{broome:true,howard:true,perong:true,simmons:true,plunkett:false},
-     speedMult:1.15, probMult:0.95, glitchChance:0.016, flickerChance:0.016, powerDrainMult:1.08, plunkettMult:0.35},
+     speedMult:1.12, probMult:0.9, glitchChance:0.016, flickerChance:0.016, powerDrainMult:1.06, plunkettMult:0.35, crossoverProb:0.20},
   3:{duration:360, label:'SOMETHING IS WRONG',
      active:{broome:true,howard:true,perong:true,simmons:true,plunkett:true},
-     speedMult:1.32, probMult:1.15, glitchChance:0.028, flickerChance:0.026, powerDrainMult:1.16, plunkettMult:0.65,
+     speedMult:1.28, probMult:1.08, glitchChance:0.028, flickerChance:0.026, powerDrainMult:1.14, plunkettMult:0.6, crossoverProb:0.30,
      anomalies:true},
   4:{duration:390, label:'LOCKDOWN',
      active:{broome:true,howard:true,perong:true,simmons:true,plunkett:true},
-     speedMult:1.55, probMult:1.35, glitchChance:0.040, flickerChance:0.034, powerDrainMult:1.30, plunkettMult:1.0,
+     speedMult:1.48, probMult:1.25, glitchChance:0.040, flickerChance:0.034, powerDrainMult:1.28, plunkettMult:0.95, crossoverProb:0.42,
      anomalies:true, lockdown:true},
   5:{duration:420, label:'FINAL PERIOD',
      active:{broome:true,howard:true,perong:true,simmons:true,plunkett:true},
-     speedMult:1.8, probMult:1.6, glitchChance:0.052, flickerChance:0.044, powerDrainMult:1.45, plunkettMult:1.6,
+     speedMult:1.7, probMult:1.5, glitchChance:0.052, flickerChance:0.044, powerDrainMult:1.42, plunkettMult:1.5, crossoverProb:0.5,
      anomalies:true, lockdown:true}
 };
 
@@ -1251,20 +1249,10 @@ const NIGHT_CONFIG = {
    GAME STATE
    ============================================================ */
 const Game = {
-  night:1,
-  running:false,
-  paused:false,
-  elapsed:0,
-  duration:330,
-  power:100,
-  flashlightOn:false,
-  camOpen:false,
-  currentCam:'c1',
-  blackout:false,
-  tickHandle:null,
-  teachers:{},
-  camDisabled:{},
-  camSignalTimer:0,
+  night:1, running:false, paused:false, elapsed:0, duration:330,
+  power:100, flashlightOn:false, camOpen:false, currentCam:'c1', blackout:false,
+  teachers:{}, camDisabled:{},
+  doors:{ left:{closed:false}, right:{closed:false} },
   bestNight: parseInt(localStorage.getItem('fnas_best')||'0',10) || 0
 };
 
@@ -1279,13 +1267,8 @@ function initTeachers(night){
       location: base.route[0],
       routeIndex:0,
       cooldown: rand(base.baseCooldown*0.5, base.baseCooldown),
-      atDoor:false,
-      doorTimer:0,
-      visible:true,
-      vanishTimer:0,
-      exposeTimer:0,
-      freezeTimer:0,
-      aggBonus:0
+      atDoor:false, side:null, doorTimer:0,
+      visible:true, vanishTimer:0, freezeTimer:0
     };
   });
 }
@@ -1297,9 +1280,22 @@ function formatClock(){
   const m = Math.floor(totalMin%60);
   let display = h===0?12:h;
   if(display>12) display -= 12;
-  return (display<10?display:display)+':'+(m<10?'0'+m:m)+' '+(h<6?'AM':'AM');
+  return display+':'+(m<10?'0'+m:m)+' AM';
 }
 function currentGameHour(){ return Math.floor(((Game.elapsed/Game.duration)*360)/60); }
+
+function usageLevel(){
+  let n=0;
+  if(Game.camOpen) n++;
+  if(Game.flashlightOn) n++;
+  if(Game.doors.left.closed) n++;
+  if(Game.doors.right.closed) n++;
+  return clamp(n+1,1,5);
+}
+function usageBars(){
+  const n=usageLevel();
+  return 'USAGE: '+'▇'.repeat(n)+'░'.repeat(5-n);
+}
 
 function updateHUD(){
   $id('hudNight').textContent='NIGHT '+Game.night;
@@ -1312,17 +1308,16 @@ function updateHUD(){
   const fill = $id('hudPowerFill');
   fill.style.width=pw+'%';
   fill.classList.toggle('low', pw<=20);
+  $id('hudUsage').textContent=usageBars();
 
-  // analog clock hands
   const totalMin = (Game.elapsed/Game.duration)*360;
   const hourAngle = ((totalMin/60)%12)*30;
   const minAngle = (totalMin%60)*6;
-  $id('clockHH').style.transform='translate(-1px,-16px) rotate('+hourAngle+'deg)';
-  $id('clockMM').style.transform='translate(-.75px,-22px) rotate('+minAngle+'deg)';
+  $id('clockHH').style.transform='translate(-1px,-14px) rotate('+hourAngle+'deg)';
+  $id('clockMM').style.transform='translate(-.75px,-20px) rotate('+minAngle+'deg)';
 
   const anyDoor = Object.values(Game.teachers).some(t=>t.atDoor);
   $id('hudThreat').classList.toggle('show', anyDoor);
-  $id('doorFrame').classList.toggle('threat', anyDoor);
 }
 
 /* ---------- MAP + FEED RENDER ---------- */
@@ -1342,7 +1337,6 @@ function renderOccupants(){
     fig.style.setProperty('--tcolor', base.color);
     occ.appendChild(fig);
   });
-  // map indicator refresh
   CAMS.forEach(cam=>{
     const btn=$id('mapbtn-'+cam.id);
     if(!btn) return;
@@ -1351,35 +1345,48 @@ function renderOccupants(){
   });
 }
 
-function updateDoorFigure(){
-  const anyDoor = Object.values(Game.teachers).find(t=>t.active && t.atDoor);
-  const fig=$id('doorFigure');
-  if(anyDoor){
-    fig.style.setProperty('--tcolor', TEACHER_BASE[anyDoor.key].color);
-    fig.style.background='#000';
-  }
+function renderDoorState(){
+  ['left','right'].forEach(side=>{
+    const occupant = Object.values(Game.teachers).find(t=>t.active && t.atDoor && t.side===side);
+    const unit=$id('door-'+side);
+    const occEl=$id('doorOcc-'+side);
+    if(occupant){
+      unit.classList.add('occupied','alert');
+      const base=TEACHER_BASE[occupant.key];
+      occEl.style.setProperty('--tcolor', base.color);
+    } else {
+      unit.classList.remove('occupied','alert');
+    }
+    unit.classList.toggle('flash-reveal', Game.flashlightOn);
+  });
 }
 
 /* ============================================================
    AI TICK LOGIC
    ============================================================ */
+function pickSide(t, cfg){
+  const base = TEACHER_BASE[t.key];
+  if(base.primarySide==='random') return Math.random()<0.5?'left':'right';
+  return Math.random() < cfg.crossoverProb ? (base.primarySide==='left'?'right':'left') : base.primarySide;
+}
+
+function timeRampMult(){
+  const hr = currentGameHour();
+  if(hr<3) return 1;
+  return 1 + ((hr-3)/3)*0.55;
+}
+
 function tickTeacher(t, dt, cfg){
   if(!t.active) return;
 
   if(t.atDoor){
-    // exposure via flashlight
-    if(Game.flashlightOn && !Game.blackout){
-      t.exposeTimer += dt;
-      if(t.exposeTimer >= 1.3){
-        deterTeacher(t);
-      }
-    } else {
-      t.exposeTimer = Math.max(0, t.exposeTimer - dt*0.5);
-    }
-    const doorSpeed = Game.blackout ? 3.2 : 1.0;
-    t.doorTimer -= dt*doorSpeed;
+    t.doorTimer -= dt;
     if(t.doorTimer<=0){
-      triggerJumpscare(t.key);
+      if(Game.doors[t.side].closed){
+        retreatTeacher(t);
+      } else {
+        triggerJumpscare(t.key);
+      }
     }
     return;
   }
@@ -1397,36 +1404,29 @@ function tickTeacher(t, dt, cfg){
   const base = TEACHER_BASE[t.key];
   t.cooldown = rand(base.baseCooldown*0.6, base.baseCooldown) / cfg.speedMult;
 
-  let prob = (base.baseProb + t.aggBonus) * cfg.probMult;
+  let prob = base.baseProb * cfg.probMult * timeRampMult();
   if(t.key==='plunkett') prob *= cfg.plunkettMult;
   if(Game.blackout) prob *= 1.6;
 
   if(Math.random() >= prob) return;
 
-  // style-specific behavior
   if(base.style==='vanish' && Math.random()<0.30){
     t.visible=false;
     t.vanishTimer = rand(3,7)/cfg.speedMult;
-    // during vanish, secretly still advances a step so player must recheck cams
     advanceRoute(t, base);
     return;
   }
   if(base.style==='erratic'){
     const roll=Math.random();
-    if(roll<0.18){
-      t.freezeTimer = rand(4,8);
-      return;
-    }
+    if(roll<0.18){ t.freezeTimer = rand(4,8); return; }
     if(roll<0.34){
-      t.visible=false;
-      t.vanishTimer = rand(2,4.5)/cfg.speedMult;
+      t.visible=false; t.vanishTimer = rand(2,4.5)/cfg.speedMult;
       advanceRoute(t, base);
       return;
     }
     triggerLightFlicker();
   }
   if(base.style==='random'){
-    // Plunkett: unpredictable jumps across the whole school
     if(Math.random()<0.55){
       const idx = randInt(0, base.route.length-2);
       t.routeIndex = Math.max(t.routeIndex, idx);
@@ -1454,25 +1454,21 @@ function advanceRoute(t, base){
 function sendToDoorCheck(t, base, cfg){
   if(t.routeIndex >= base.route.length-1){
     t.atDoor=true;
-    t.doorTimer = (base.doorTimeBase - Game.night*0.6) / cfg.speedMult;
-    t.doorTimer = Math.max(4, t.doorTimer);
-    t.exposeTimer=0;
+    t.side = pickSide(t,cfg);
+    t.doorTimer = Math.max(3, (base.graceTimeBase - Game.night*0.35) / cfg.speedMult);
     if(base.sfx==='footsteps') Audio_.footstepPattern(2);
     if(base.sfx==='flicker') triggerLightFlicker();
-    Audio_.crackle();
+    Audio_.knock();
   }
 }
 
-function deterTeacher(t){
+function retreatTeacher(t){
   const base = TEACHER_BASE[t.key];
-  t.atDoor=false;
-  t.doorTimer=0;
-  t.exposeTimer=0;
+  t.atDoor=false; t.doorTimer=0; t.side=null;
   t.routeIndex = Math.max(0, t.routeIndex-2);
   t.location = base.route[t.routeIndex];
-  t.cooldown = rand(base.baseCooldown*0.8, base.baseCooldown*1.3);
-  t.aggBonus += 0.015;
-  Audio_.staticSweep(0.3);
+  t.cooldown = rand(base.baseCooldown*0.9, base.baseCooldown*1.4);
+  Audio_.doorBang();
   flashPulse();
 }
 
@@ -1482,43 +1478,33 @@ function triggerLightFlicker(){
   void layer.offsetWidth;
   layer.style.animation='roomFlicker 2.2s 1';
 }
-
 function flashPulse(){
   const fo = $id('flashOverlay');
   fo.classList.add('on');
   setTimeout(()=>fo.classList.remove('on'), 180);
 }
 
-/* ---------- camera glitches ---------- */
+/* ---------- camera glitches / anomalies ---------- */
 function maybeGlitchCameras(cfg){
   if(Game.camOpen && Math.random() < cfg.glitchChance){
     const cam = pick(CAMS).id;
     Game.camDisabled[cam]=true;
-    if(cam===Game.currentCam){
-      $id('camSignalLost').classList.add('show');
-    }
+    if(cam===Game.currentCam) $id('camSignalLost').classList.add('show');
     setTimeout(()=>{
       delete Game.camDisabled[cam];
       if(cam===Game.currentCam) $id('camSignalLost').classList.remove('show');
     }, rand(2500,6000));
   }
-  if(Math.random() < cfg.flickerChance*0.5){
-    triggerLightFlicker();
-  }
+  if(Math.random() < cfg.flickerChance*0.5) triggerLightFlicker();
 }
-
 let anomalyCooldown=0;
 function maybeAnomaly(cfg,dt){
   if(!cfg.anomalies) return;
   anomalyCooldown -= dt;
   if(anomalyCooldown>0) return;
   anomalyCooldown = rand(45,85);
-  if(Math.random()<0.5){
-    Audio_.noiseBurst(0.6,.1,900,'bandpass');
-    triggerLightFlicker();
-  } else {
-    Audio_.crackle();
-  }
+  if(Math.random()<0.5){ Audio_.noiseBurst(0.6,.1,900,'bandpass'); triggerLightFlicker(); }
+  else { Audio_.crackle(); }
 }
 
 /* ============================================================
@@ -1535,40 +1521,42 @@ function gameLoop(ts){
     Game.elapsed += dt;
     const cfg = NIGHT_CONFIG[Game.night];
 
-    // power drain
-    let drain = 0.0155; // base
-    if(Game.camOpen) drain += 0.028;
-    if(Game.flashlightOn) drain += 0.05;
+    let drain = 0.011;
+    if(Game.camOpen) drain += 0.022;
+    if(Game.flashlightOn) drain += 0.035;
+    if(Game.doors.left.closed) drain += 0.030;
+    if(Game.doors.right.closed) drain += 0.030;
     drain *= cfg.powerDrainMult;
-    if(!Game.blackout){
-      Game.power = clamp(Game.power - drain*dt*10, 0, 100);
-    }
-    if(Game.power<=0 && !Game.blackout){
-      enterBlackout();
-    }
+    if(!Game.blackout) Game.power = clamp(Game.power - drain*dt*10, 0, 100);
+    if(Game.power<=0 && !Game.blackout) enterBlackout();
 
     Object.values(Game.teachers).forEach(t=>tickTeacher(t, dt, cfg));
     maybeGlitchCameras(cfg);
     maybeAnomaly(cfg,dt);
 
-    if(currentGameHour()>=6){
-      finishNight();
-      return;
-    }
+    if(currentGameHour()>=6){ finishNight(); return; }
 
     updateHUD();
     if(Game.camOpen) renderOccupants();
     else if((Math.floor(Game.elapsed*2))%2===0) renderOccupants();
-    updateDoorFigure();
+    renderDoorState();
   }
   requestAnimationFrame(gameLoop);
 }
 
 function enterBlackout(){
   Game.blackout=true;
+  Game.doors.left.closed=false; Game.doors.right.closed=false;
+  ['left','right'].forEach(side=>{
+    $id('door-'+side).classList.remove('closed');
+    const lbl=$id('doorLabel-'+side); lbl.textContent='OPEN'; lbl.classList.remove('closed');
+    $id('btn'+(side==='left'?'DoorLeft':'DoorRight')).classList.remove('is-closed');
+  });
   $id('roomScene').classList.add('blackout');
   $id('btnCameras').disabled=true;
   $id('btnFlashlight').disabled=true;
+  $id('btnDoorLeft').disabled=true;
+  $id('btnDoorRight').disabled=true;
   if(Game.camOpen) closeCameras();
   Game.flashlightOn=false;
   $id('roomScene').classList.remove('flashlight-on');
@@ -1588,17 +1576,28 @@ function startNight(n){
   Game.blackout=false;
   Game.currentCam='c1';
   Game.camDisabled={};
+  Game.doors.left.closed=false;
+  Game.doors.right.closed=false;
   lastTick=0;
   initTeachers(n);
 
   $id('roomScene').classList.remove('blackout','flashlight-on');
+  ['left','right'].forEach(side=>{
+    $id('door-'+side).classList.remove('closed','occupied','alert');
+    const lbl=$id('doorLabel-'+side); lbl.textContent='OPEN'; lbl.classList.remove('closed');
+  });
   $id('btnCameras').disabled=false;
   $id('btnFlashlight').disabled=false;
+  $id('btnDoorLeft').disabled=false;
+  $id('btnDoorRight').disabled=false;
+  $id('btnDoorLeft').classList.remove('is-closed');
+  $id('btnDoorRight').classList.remove('is-closed');
   $id('camMonitor').classList.remove('open');
 
   showScreen('screen-game');
   updateHUD();
   renderOccupants();
+  renderDoorState();
   Game.running=true;
   Audio_.startHum();
   requestAnimationFrame(gameLoop);
@@ -1616,23 +1615,12 @@ function finishNight(){
   showScreen('screen-victory');
   const box=$id('victoryBox');
   box.classList.remove('show');
-  if(Game.night>=5){
-    $id('victoryNightLabel').textContent='NIGHT 5 COMPLETE';
-    $id('btnContinueNight').textContent='CONTINUE';
-    setTimeout(()=>box.classList.add('show'), 50);
-  } else {
-    $id('victoryNightLabel').textContent='NIGHT '+Game.night+' COMPLETE';
-    $id('btnContinueNight').textContent='CONTINUE';
-    setTimeout(()=>box.classList.add('show'), 50);
-  }
+  $id('victoryNightLabel').textContent='NIGHT '+Game.night+' COMPLETE';
+  $id('btnContinueNight').textContent='CONTINUE';
+  setTimeout(()=>box.classList.add('show'), 50);
 }
-
 function continueFromVictory(){
-  if(Game.night>=5){
-    playEnding();
-  } else {
-    startNight(Game.night+1);
-  }
+  if(Game.night>=5) playEnding(); else startNight(Game.night+1);
 }
 
 /* ---------- jumpscare / game over ---------- */
@@ -1645,6 +1633,7 @@ function triggerJumpscare(teacherKey){
   const flash=$id('scareFlash'), fig=$id('scareFigure'), txt=$id('caughtText');
   flash.classList.remove('go'); fig.classList.remove('go'); txt.classList.remove('show');
   fig.style.setProperty('--tcolor', base.color);
+  $id('caughtBy').textContent = base.name+' GOT IN.';
   document.body.classList.add('shake');
   void flash.offsetWidth;
   flash.classList.add('go');
@@ -1674,7 +1663,6 @@ function closeCameras(){
   Audio_.click();
 }
 function switchCamera(camId, silent){
-  if(Game.camDisabled[Game.currentCam] && camId===Game.currentCam){ /* stays lost */ }
   const staticEl = $id('camStaticCanvas');
   staticEl.classList.add('show');
   if(!silent) Audio_.staticSweep(0.25);
@@ -1696,7 +1684,22 @@ function setFlashlight(on){
   Game.flashlightOn = on;
   $id('roomScene').classList.toggle('flashlight-on', on);
   $id('btnFlashlight').classList.toggle('engaged', on);
+  renderDoorState();
   if(on) Audio_.click();
+}
+
+/* ---------- doors ---------- */
+function toggleDoor(side){
+  if(Game.blackout) return;
+  const d = Game.doors[side];
+  d.closed = !d.closed;
+  const unit=$id('door-'+side);
+  unit.classList.toggle('closed', d.closed);
+  const lbl=$id('doorLabel-'+side);
+  lbl.textContent = d.closed?'CLOSED':'OPEN';
+  lbl.classList.toggle('closed', d.closed);
+  $id('btn'+(side==='left'?'DoorLeft':'DoorRight')).classList.toggle('is-closed', d.closed);
+  Audio_.doorClunk();
 }
 
 /* ============================================================
@@ -1704,14 +1707,13 @@ function setFlashlight(on){
    ============================================================ */
 buildCameraDom();
 buildLockerRow($id('menuLockers'),16);
-buildLockerRow($id('roomLockers'),6);
 staticRenderer = makeStaticRenderer($id('camStaticCanvas'));
 miniStaticRenderer = makeStaticRenderer($id('miniStatic'));
 miniStaticRenderer.start();
+const grainRenderer = makeStaticRenderer($id('grainCanvas'), {scale:6, interval:110});
 
-/* keep the mini static + main static rendering while relevant screens open */
 setInterval(()=>{
-  if($id('camMonitor').classList.contains('open')) $id('camStaticCanvas').parentElement, staticRenderer.drawFrame();
+  if($id('camMonitor').classList.contains('open')) staticRenderer.drawFrame();
 }, 60);
 
 /* ============================================================
@@ -1720,6 +1722,7 @@ setInterval(()=>{
 function goMenu(){
   Game.running=false;
   Audio_.stopHum();
+  Audio_.stopWind();
   spawnDust($id('dustMenu'),22);
   $id('menuProgress').textContent = Game.bestNight>0 ? ('FURTHEST NIGHT REACHED: '+Game.bestNight) : '';
   showScreen('screen-menu');
@@ -1732,10 +1735,10 @@ $id('backFromCredits').addEventListener('click', goMenu);
 
 $id('btnNewGame').addEventListener('click', ()=>{ Game.night=1; playOpeningCinematic(); });
 
-$id('btnCameras').addEventListener('click', ()=>{
-  if(Game.camOpen) closeCameras(); else openCameras();
-});
+$id('btnCameras').addEventListener('click', ()=>{ if(Game.camOpen) closeCameras(); else openCameras(); });
 $id('btnCloseCam').addEventListener('click', closeCameras);
+$id('btnDoorLeft').addEventListener('click', ()=>toggleDoor('left'));
+$id('btnDoorRight').addEventListener('click', ()=>toggleDoor('right'));
 
 const flashBtn = $id('btnFlashlight');
 flashBtn.addEventListener('mousedown', ()=>setFlashlight(true));
@@ -1749,24 +1752,66 @@ $id('btnScareMenu').addEventListener('click', goMenu);
 $id('btnContinueNight').addEventListener('click', continueFromVictory);
 
 $id('skipIntroBtn').addEventListener('click', ()=>{ fastForward=true; });
+$id('skipCineBtn').addEventListener('click', ()=>{ fastForward=true; });
 
 /* ============================================================
-   INTRO CREDITS SEQUENCE
+   PRE-TITLE CINEMATIC (exterior + HAMGAMES credits)
    ============================================================ */
+function introText(html, cls){
+  const wrap=$id('introTextWrap');
+  wrap.innerHTML = '<div class="'+(cls||'intro-text')+'">'+html+'</div>';
+  return wrap.firstElementChild;
+}
+async function showIntroText(html, hold, cls){
+  const el = introText(html, cls);
+  await wait(60);
+  el.classList.add('show');
+  await wait(hold);
+  el.classList.remove('show');
+  await wait(700);
+}
+
 async function playIntro(){
   fastForward=false;
-  spawnDust($id('dustIntro'),16);
   showScreen('screen-intro');
+  Audio_.startWind();
+  grainRenderer.start();
+
+  const stage = $id('exteriorStage');
+  stage.innerHTML =
+    '<div class="exterior-school">'+
+      '<div class="ext-sky"></div>'+
+      '<div class="ext-ground"></div>'+
+      '<div class="ext-parking"></div>'+
+      '<div class="ext-building">'+
+        '<div class="ext-roofline"></div>'+
+        '<div class="ext-door-main"></div>'+
+        '<div id="extWindows"></div>'+
+      '</div>'+
+      '<div class="ext-sign">WEDDINGTON MIDDLE SCHOOL</div>'+
+      '<div class="ext-lamp" style="left:20%;"></div>'+
+      '<div class="ext-lamp" style="right:20%;"></div>'+
+      '<div class="ext-tree" style="left:8%;"></div>'+
+      '<div class="ext-tree" style="right:6%;"></div>'+
+    '</div>';
+  buildExteriorWindows($id('extWindows'), 16);
+  for(let i=0;i<6;i++){
+    const l=document.createElement('div'); l.className='ext-pline'; l.style.left=(30+i*7)+'%';
+    stage.querySelector('.exterior-school').appendChild(l);
+  }
+  $id('introTextWrap').innerHTML='';
+  await wait(5200);
+
+  stage.innerHTML='';
   await wait(700);
-  $id('introText1').classList.add('show');
-  await wait(2600);
-  $id('introText1').classList.remove('show');
-  await wait(900);
-  $id('introText2').classList.add('show');
-  await wait(2600);
-  $id('introText2').classList.remove('show');
-  await wait(900);
+
+  await showIntroText('<div class="intro-title">WEDDINGTON MIDDLE SCHOOL</div><div class="intro-sub">AFTER HOURS</div>', 2800);
+  await showIntroText('<div class="intro-studio">MADE BY HAMGAMES</div>', 2200);
+  await showIntroText('<div class="intro-studio small">A HAMGAMES ORIGINAL</div>', 2200);
+
   fastForward=false;
+  grainRenderer.stop();
+  Audio_.stopWind();
   goMenu();
 }
 
@@ -1784,42 +1829,112 @@ async function showCaption(text, holdMs, cls){
   el.classList.add('show');
   await wait(holdMs);
   el.classList.remove('show');
-  await wait(500);
+  await wait(450);
+}
+function hallwayMarkup(){
+  return '<div class="scene-hallway"><div class="hall-perspective"><div class="hall-ceiling"></div><div class="hall-floor"></div>'+
+    '<div class="hall-wall-l"></div><div class="hall-wall-r"></div><div class="hall-lockers" id="cineLockers"></div><div class="hall-light"></div></div></div>';
 }
 
 async function playOpeningCinematic(){
   fastForward=false;
   showScreen('screen-cinematic');
+  Audio_.startWind();
   const stage = $id('cineStage');
 
-  // Hallway
-  stage.innerHTML = '<div class="scene-hallway"><div class="hall-perspective"><div class="hall-ceiling"></div><div class="hall-floor"></div><div class="hall-wall-l"></div><div class="hall-wall-r"></div><div class="hall-lockers"></div><div class="hall-light"></div></div></div>';
-  buildLockerRow(stage.querySelector('.hall-lockers'),14);
-  await showCaption('11:47 PM', 1800, 'cine-time');
-  await showCaption('You stayed after school.', 2200);
-  await showCaption('Not because you had to.', 2200);
-  await showCaption('You were hiding from class.', 2600);
+  // 1. exterior establishing shot
+  stage.innerHTML =
+    '<div class="exterior-school" style="position:absolute;inset:0;animation:kenBurns 5s ease-in-out forwards;">'+
+      '<div class="ext-sky"></div><div class="ext-ground"></div><div class="ext-parking"></div>'+
+      '<div class="ext-building"><div class="ext-roofline"></div><div class="ext-door-main"></div><div id="extWindows2"></div></div>'+
+      '<div class="ext-lamp" style="left:22%;"></div><div class="ext-lamp" style="right:22%;"></div>'+
+    '</div>';
+  buildExteriorWindows($id('extWindows2'), 14);
+  await wait(2600);
 
-  // Bathroom
-  stage.innerHTML = '<div class="scene-bathroom"><div class="bathroom-tiles"></div><div class="stall-row"></div></div>';
-  const stallRow = stage.querySelector('.stall-row');
+  // 2. hallway
+  stage.innerHTML = hallwayMarkup();
+  buildLockerRow($id('cineLockers'),14);
+  await wait(1800);
+
+  // 3. dark classroom
+  stage.innerHTML = '<div class="scene-darkroom"><div class="dr-window"><div class="dr-moon"></div></div><div class="dr-desk-row" style="left:14%;"><span></span><span></span><span></span></div><div class="dr-desk-row" style="left:54%;"><span></span><span></span><span></span></div></div>';
+  await wait(1800);
+
+  // 4. clock close-up
+  stage.innerHTML = '<div class="scene-clockcu"><div class="clock-big"><div class="hand hh"></div><div class="hand mm"></div></div></div>';
+  await wait(1800);
+
+  // 5. bathroom entrance
+  stage.innerHTML = '<div class="scene-bathroom"><div class="bathroom-tiles"></div><div class="bathroom-entry-sign">RESTROOM</div></div>';
+  await wait(1600);
+
+  // 6. move toward the stall
+  stage.innerHTML = '<div class="scene-bathroom"><div class="bathroom-tiles"></div><div class="stall-row" id="stallRow"></div></div>';
+  const stallRow = $id('stallRow');
   for(let i=0;i<4;i++){
     const s=document.createElement('div');
     s.className='stall'+(i===2?' player-stall':'');
-    if(i===2){ s.innerHTML='<div class="stall-door-shut" id="stallDoor"></div>'; }
+    if(i===2) s.innerHTML='<div class="stall-door-shut" id="stallDoor"></div>';
     stallRow.appendChild(s);
   }
-  await wait(1400);
+  await wait(700);
+  stallRow.classList.add('zoomed');
+  await wait(2000);
+
+  // 7. stall door closes -> black
   const doorEl = $id('stallDoor');
-  if(doorEl) doorEl.style.transform='rotateY(35deg)';
-  await wait(1200);
   if(doorEl) doorEl.style.transform='rotateY(0deg)';
   Audio_.click();
-  await wait(1200);
-
-  // fade to black
-  stage.innerHTML = '<div class="scene-blackout"></div>';
   await wait(900);
+  stage.innerHTML = '<div class="scene-blackout"></div>';
+  await wait(700);
+
+  await showCaption('11:47 PM', 1800, 'cine-time');
+  await showCaption('You stayed after school.', 2200);
+  await showCaption('Not because you had to.', 2200);
+  await showCaption('You were hiding from class.', 2400);
+
+  // stall door opens slightly - a nervous peek down the hall
+  stage.innerHTML = '<div class="scene-bathroom"><div class="bathroom-tiles"></div><div class="stall-row" id="stallRow2"></div></div>';
+  const stallRow2=$id('stallRow2');
+  for(let i=0;i<4;i++){
+    const s=document.createElement('div');
+    s.className='stall'+(i===2?' player-stall':'');
+    if(i===2) s.innerHTML='<div class="stall-door-shut" id="stallDoor2" style="transform:rotateY(0deg);"></div>';
+    stallRow2.appendChild(s);
+  }
+  await wait(600);
+  const doorEl2=$id('stallDoor2');
+  if(doorEl2) doorEl2.style.transform='rotateY(38deg)';
+  await wait(1400);
+
+  stage.innerHTML = hallwayMarkup();
+  buildLockerRow($id('cineLockers'),14);
+  await wait(1800);
+  triggerLightFlicker();
+  Audio_.crackle();
+  await wait(1200);
+  Audio_.doorBang();
+  await wait(1600);
+
+  // back into the stall
+  stage.innerHTML = '<div class="scene-bathroom"><div class="bathroom-tiles"></div><div class="stall-row" id="stallRow3"></div></div>';
+  const stallRow3=$id('stallRow3');
+  for(let i=0;i<4;i++){
+    const s=document.createElement('div');
+    s.className='stall'+(i===2?' player-stall':'');
+    if(i===2) s.innerHTML='<div class="stall-door-shut" id="stallDoor3" style="transform:rotateY(30deg);"></div>';
+    stallRow3.appendChild(s);
+  }
+  await wait(500);
+  const doorEl3=$id('stallDoor3');
+  if(doorEl3) doorEl3.style.transform='rotateY(0deg)';
+  Audio_.click();
+  await wait(1000);
+
+  stage.innerHTML = '<div class="scene-blackout"></div>';
+  await wait(800);
   await showCaption('11:59 PM', 1600, 'cine-time');
 
   Audio_.bell();
@@ -1829,20 +1944,29 @@ async function playOpeningCinematic(){
   stage.innerHTML = '<div class="scene-blackout"></div><div class="intercom-box" style="position:relative;z-index:5;"><div class="intercom-icon live"></div></div>';
   await wait(500);
   Audio_.speak('Attention.');
-  await showCaption('&ldquo;ATTENTION&hellip;&rdquo;', 1800);
+  await showCaption('&ldquo;ATTENTION&hellip;&rdquo;', 1700);
   Audio_.speak('The school is now closed.');
-  await showCaption('&rdquo;&hellip;THE SCHOOL IS NOW CLOSED.&rdquo;', 2200);
+  await showCaption('&rdquo;&hellip;THE SCHOOL IS NOW CLOSED.&rdquo;', 2100);
   Audio_.crackle();
-  await wait(1000);
+  await wait(900);
 
+  stage.innerHTML = hallwayMarkup();
+  buildLockerRow($id('cineLockers'),14);
+  await wait(2400);
+  await showCaption('&ldquo;PLEASE REMAIN IN YOUR ASSIGNED AREA.&rdquo;', 2200);
+
+  triggerLightFlicker();
+  Audio_.crackle();
+  await wait(500);
   stage.innerHTML = '<div class="scene-blackout"></div>';
-  await wait(800);
+  await wait(700);
+
   await showCaption('12:00 AM', 1700, 'cine-time');
   await showCaption('NIGHT 1', 1700, 'cine-time');
   fastForward=false;
+  Audio_.stopWind();
   startNight(1);
 }
-$id('skipCineBtn').addEventListener('click', ()=>{ fastForward=true; });
 
 /* ============================================================
    ENDING CINEMATIC
@@ -1864,7 +1988,8 @@ async function playEnding(){
     await wait(hold); el.classList.remove('show'); await wait(500);
   }
 
-  stage.innerHTML='<div class="scene-hallway"><div class="hall-perspective"><div class="hall-ceiling"></div><div class="hall-floor"></div><div class="hall-wall-l"></div><div class="hall-wall-r"></div></div></div>';
+  stage.innerHTML=hallwayMarkup();
+  buildLockerRow(stage.querySelector('.hall-lockers'),14);
   await show('You leave the security room.', 2400);
   await show('The school is completely empty.', 2600);
 
