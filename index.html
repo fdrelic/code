@@ -1799,6 +1799,15 @@ function init(){
 
 document.addEventListener('DOMContentLoaded', init);
 
+// Force a final save the instant the tab is hidden, backgrounded, or unloaded —
+// belt-and-suspenders on top of the save-after-every-action calls above. This
+// cannot fix a storage backend that does not persist (see Save Code / the
+// storage warning banner for that), but it guarantees nothing is ever lost to
+// a missed save call in whatever storage IS available.
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='hidden') saveState(); });
+window.addEventListener('pagehide', saveState);
+window.addEventListener('beforeunload', saveState);
+
 })();
 </script>
 </body>
