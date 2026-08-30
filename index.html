@@ -323,6 +323,10 @@ html.reduced-motion *,html.reduced-motion *::before,html.reduced-motion *::after
   font-weight:700;letter-spacing:1.5px;font-size:13px;transition:transform .15s ease;
 }
 .modal-btn:hover{transform:translateY(-1px);}
+.confirm-actions{display:flex;gap:10px;}
+.confirm-actions .modal-btn{width:auto;flex:1;}
+.confirm-cancel{background:var(--panel-2);border:1px solid var(--panel-border);color:var(--dim);}
+.confirm-ok{border-color:var(--danger);background:linear-gradient(135deg,#7a2430,#4a141c);color:#ffd9dc;}
 
 /* ============================================================ DATABASE */
 .db-controls{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px;align-items:center;}
@@ -733,6 +737,18 @@ footer.foot{text-align:center;padding:20px;color:var(--dimmer);font-size:10.5px;
   </div>
 </div>
 
+<!-- ============================================================ CONFIRM MODAL (never uses window.confirm — sandboxed embeds can silently block native dialogs) -->
+<div class="modal-overlay hidden" id="confirmModal">
+  <div class="modal-card" id="confirmCard">
+    <div class="modal-tag" id="confirmTag">ARE YOU SURE?</div>
+    <div class="modal-desc" id="confirmMessage" style="margin-bottom:20px;">—</div>
+    <div class="confirm-actions">
+      <button class="modal-btn confirm-cancel" id="confirmCancelBtn">CANCEL</button>
+      <button class="modal-btn confirm-ok" id="confirmOkBtn">CONFIRM</button>
+    </div>
+  </div>
+</div>
+
 <div id="achToasts"></div>
 <div id="eventBanner"><div class="eb-title" id="ebTitle"></div><div class="eb-desc" id="ebDesc"></div></div>
 
@@ -820,68 +836,68 @@ const HAM_DATA = [
   h('rar14','Ham Ranger','rare',4000,'Patrols the wilderness of the office fridge.'),
   h('rar15','Ham Monk','rare',4000,'Achieved inner peace through prolonged refrigeration.'),
 
-  // ---------------- EPIC (14) — weight 2600 each ----------------
-  h('epi01','Ham Dragon','epic',2600,'A dragon legend claims its greatest weakness was sliced ham.'),
-  h('epi02','Ham Titan','epic',2600,'Forged in a furnace nobody is allowed to discuss.'),
-  h('epi03','Ham Galaxy','epic',2600,'Contains enough cosmic energy to violate several known laws of physics.'),
-  h('epi04','Ham Cyber','epic',2600,'Runs on a firmware that predates the concept of ham.'),
-  h('epi05','Ham Overlord','epic',2600,'Rules over a small but extremely loyal fridge shelf.'),
-  h('epi06','Ham Supreme','epic',2600,'The Supreme Court has yet to rule on its legality.'),
-  h('epi07','Ham Cosmic','epic',2600,'Arrived on a meteorite. The meteorite was fine.'),
-  h('epi08','Ham Kraken','epic',2600,'Rises from the deli counter once every hundred years.'),
-  h('epi09','Ham Behemoth','epic',2600,'So large it requires its own zip code.'),
-  h('epi10','Ham Warlock','epic',2600,'Cast a curse. The curse was extremely tasty.'),
-  h('epi11','Ham Vortex','epic',2600,'Bends the space-time continuum near the microwave.'),
-  h('epi12','Ham Berserker','epic',2600,'Cannot be reasoned with once the bread arrives.'),
-  h('epi13','Ham Colossus','epic',2600,'Once mistaken for a small mountain range.'),
-  h('epi14','Ham Oracle','epic',2600,'Always knows when you are about to get hungry.'),
+  // ---------------- EPIC (14) — weight 3200 each ----------------
+  h('epi01','Ham Dragon','epic',3200,'A dragon legend claims its greatest weakness was sliced ham.'),
+  h('epi02','Ham Titan','epic',3200,'Forged in a furnace nobody is allowed to discuss.'),
+  h('epi03','Ham Galaxy','epic',3200,'Contains enough cosmic energy to violate several known laws of physics.'),
+  h('epi04','Ham Cyber','epic',3200,'Runs on a firmware that predates the concept of ham.'),
+  h('epi05','Ham Overlord','epic',3200,'Rules over a small but extremely loyal fridge shelf.'),
+  h('epi06','Ham Supreme','epic',3200,'The Supreme Court has yet to rule on its legality.'),
+  h('epi07','Ham Cosmic','epic',3200,'Arrived on a meteorite. The meteorite was fine.'),
+  h('epi08','Ham Kraken','epic',3200,'Rises from the deli counter once every hundred years.'),
+  h('epi09','Ham Behemoth','epic',3200,'So large it requires its own zip code.'),
+  h('epi10','Ham Warlock','epic',3200,'Cast a curse. The curse was extremely tasty.'),
+  h('epi11','Ham Vortex','epic',3200,'Bends the space-time continuum near the microwave.'),
+  h('epi12','Ham Berserker','epic',3200,'Cannot be reasoned with once the bread arrives.'),
+  h('epi13','Ham Colossus','epic',3200,'Once mistaken for a small mountain range.'),
+  h('epi14','Ham Oracle','epic',3200,'Always knows when you are about to get hungry.'),
 
-  // ---------------- LEGENDARY (12) — weight 850 each ----------------
-  h('leg01','Ham God','legendary',850,'Nobody knows who created the ham. Some believe it created us.'),
-  h('leg02','Ham King','legendary',850,'Crowned during a ceremony nobody remembers attending.'),
-  h('leg03','Ham Eternal','legendary',850,'Has existed since before refrigeration was invented.'),
-  h('leg04','Ham Prime','legendary',850,'The original. The blueprint. The ham from which all hams descend.'),
-  h('leg05','Ham Infinity','legendary',850,'Contains infinite ham within a finite slice.'),
-  h('leg06','Ham Ascended','legendary',850,'Left its mortal casing behind entirely.'),
-  h('leg07','Ham Celestial','legendary',850,'Descended from somewhere significantly above the deli.'),
-  h('leg08','Ham Sovereign','legendary',850,'Answers to no fridge, no shelf, no expiration date.'),
-  h('leg09','Ham Paragon','legendary',850,'The ham all other hams are measured against, and found lacking.'),
-  h('leg10','Ham Immortal','legendary',850,'Its expiration date is simply listed as never.'),
-  h('leg11','Ham Zenith','legendary',850,'The absolute peak of achievable ham.'),
-  h('leg12','Ham Radiant','legendary',850,'Emits a warm golden light nobody can explain.'),
+  // ---------------- LEGENDARY (12) — weight 1500 each ----------------
+  h('leg01','Ham God','legendary',1500,'Nobody knows who created the ham. Some believe it created us.'),
+  h('leg02','Ham King','legendary',1500,'Crowned during a ceremony nobody remembers attending.'),
+  h('leg03','Ham Eternal','legendary',1500,'Has existed since before refrigeration was invented.'),
+  h('leg04','Ham Prime','legendary',1500,'The original. The blueprint. The ham from which all hams descend.'),
+  h('leg05','Ham Infinity','legendary',1500,'Contains infinite ham within a finite slice.'),
+  h('leg06','Ham Ascended','legendary',1500,'Left its mortal casing behind entirely.'),
+  h('leg07','Ham Celestial','legendary',1500,'Descended from somewhere significantly above the deli.'),
+  h('leg08','Ham Sovereign','legendary',1500,'Answers to no fridge, no shelf, no expiration date.'),
+  h('leg09','Ham Paragon','legendary',1500,'The ham all other hams are measured against, and found lacking.'),
+  h('leg10','Ham Immortal','legendary',1500,'Its expiration date is simply listed as never.'),
+  h('leg11','Ham Zenith','legendary',1500,'The absolute peak of achievable ham.'),
+  h('leg12','Ham Radiant','legendary',1500,'Emits a warm golden light nobody can explain.'),
 
-  // ---------------- MYTHIC (10) — weight 230 each ----------------
-  h('myt01','Ham Beyond','mythic',230,'Exists somewhere past what ham was originally supposed to mean.'),
-  h('myt02','Ham Omniverse','mythic',230,'Present in every possible version of every possible lunch.'),
-  h('myt03','Ham Reality','mythic',230,'It is less that this ham exists and more that reality exists around it.'),
-  h('myt04','Ham Absolute','mythic',230,'The final, unchallengeable form of ham.'),
-  h('myt05','Ham Genesis','mythic',230,'Where it all began. Nobody remembers the beginning.'),
-  h('myt06','Ham Singularity','mythic',230,'All hams eventually collapse into this one.'),
-  h('myt07','Ham Paradox','mythic',230,'Simultaneously the first and last ham ever recorded.'),
-  h('myt08','Ham Eclipse','mythic',230,'Briefly blocks out everything else you were doing.'),
-  h('myt09','Ham Nexus','mythic',230,'The point where every timeline agrees ham was a good idea.'),
-  h('myt10','Ham Continuum','mythic',230,'Has always been here. Will always be here. Is here now.'),
+  // ---------------- MYTHIC (10) — weight 480 each ----------------
+  h('myt01','Ham Beyond','mythic',480,'Exists somewhere past what ham was originally supposed to mean.'),
+  h('myt02','Ham Omniverse','mythic',480,'Present in every possible version of every possible lunch.'),
+  h('myt03','Ham Reality','mythic',480,'It is less that this ham exists and more that reality exists around it.'),
+  h('myt04','Ham Absolute','mythic',480,'The final, unchallengeable form of ham.'),
+  h('myt05','Ham Genesis','mythic',480,'Where it all began. Nobody remembers the beginning.'),
+  h('myt06','Ham Singularity','mythic',480,'All hams eventually collapse into this one.'),
+  h('myt07','Ham Paradox','mythic',480,'Simultaneously the first and last ham ever recorded.'),
+  h('myt08','Ham Eclipse','mythic',480,'Briefly blocks out everything else you were doing.'),
+  h('myt09','Ham Nexus','mythic',480,'The point where every timeline agrees ham was a good idea.'),
+  h('myt10','Ham Continuum','mythic',480,'Has always been here. Will always be here. Is here now.'),
 
-  // ---------------- SECRET (10) — weight 30 each ----------------
-  h('sec01','Ham.exe','secret',30,'Something went wrong. The ham appears to be running.'),
-  h('sec02','Ham Void','secret',30,'There is nothing here. Somehow, there is still ham.'),
-  h('sec03','Ham Forgotten','secret',30,'Nobody remembers adding this to the database. It insists it belongs.'),
-  h('sec04','Ham Glitched','secret',30,'The ham is not rendering correctly. It is delicious anyway.'),
-  h('sec05','Ham ????','secret',30,'The database refuses to describe this entry.'),
-  h('sec06','Ham Classified','secret',30,'This description has been redacted by order of the Ham Ministry.'),
-  h('sec07','Ham 404','secret',30,'Ham not found. And yet, here it is.'),
-  h('sec08','Ham Unknown','secret',30,'Origin unknown. Flavor unknown. Presence undeniable.'),
-  h('sec09','Ham [REDACTED]','secret',30,'[DESCRIPTION WITHHELD PENDING FURTHER REVIEW]'),
-  h('sec10','Ham Signal','secret',30,'Broadcasting from a frequency the deli was never meant to reach.'),
+  // ---------------- SECRET (10) — weight 75 each ----------------
+  h('sec01','Ham.exe','secret',75,'Something went wrong. The ham appears to be running.'),
+  h('sec02','Ham Void','secret',75,'There is nothing here. Somehow, there is still ham.'),
+  h('sec03','Ham Forgotten','secret',75,'Nobody remembers adding this to the database. It insists it belongs.'),
+  h('sec04','Ham Glitched','secret',75,'The ham is not rendering correctly. It is delicious anyway.'),
+  h('sec05','Ham ????','secret',75,'The database refuses to describe this entry.'),
+  h('sec06','Ham Classified','secret',75,'This description has been redacted by order of the Ham Ministry.'),
+  h('sec07','Ham 404','secret',75,'Ham not found. And yet, here it is.'),
+  h('sec08','Ham Unknown','secret',75,'Origin unknown. Flavor unknown. Presence undeniable.'),
+  h('sec09','Ham [REDACTED]','secret',75,'[DESCRIPTION WITHHELD PENDING FURTHER REVIEW]'),
+  h('sec10','Ham Signal','secret',75,'Broadcasting from a frequency the deli was never meant to reach.'),
 
   // ---------------- IMPOSSIBLE (7) — hand-tuned weights ----------------
-  h('imp01','Ham Null','impossible',6,'This ham should not have a value. It has one anyway.'),
-  h('imp02','Ham Origin','impossible',6,'The very first ham. Before it, there was nothing. After it, there was everything.'),
-  h('imp03','Ham Final','impossible',4,'The last ham that will ever be rolled. Probably. Roll again to be sure.'),
-  h('imp04','Hamgames','impossible',2,'The company itself, somehow, is also a ham.'),
-  h('imp05','Ham Beyond Reality','impossible',2,'It broke through Ham Beyond. Nobody is sure what is left to break.'),
-  h('imp06','Ham Absolute Zero','impossible',2,'Colder than physically possible. Still somehow warm to the touch.'),
-  h('imp07','Ham //ERROR//','impossible',2,'The database crashed trying to describe this. Twice.')
+  h('imp01','Ham Null','impossible',11,'This ham should not have a value. It has one anyway.'),
+  h('imp02','Ham Origin','impossible',11,'The very first ham. Before it, there was nothing. After it, there was everything.'),
+  h('imp03','Ham Final','impossible',7,'The last ham that will ever be rolled. Probably. Roll again to be sure.'),
+  h('imp04','Hamgames','impossible',4,'The company itself, somehow, is also a ham.'),
+  h('imp05','Ham Beyond Reality','impossible',4,'It broke through Ham Beyond. Nobody is sure what is left to break.'),
+  h('imp06','Ham Absolute Zero','impossible',4,'Colder than physically possible. Still somehow warm to the touch.'),
+  h('imp07','Ham //ERROR//','impossible',4,'The database crashed trying to describe this. Twice.')
 ];
 
 const HAM_BY_ID = {};
@@ -1136,6 +1152,9 @@ function renderNav(){
   }
 }
 setInterval(renderNav, 30000);
+// Keep the Save Code box visibly live while a player is looking at it — e.g. after
+// claiming the Daily Ham or dismissing an achievement toast without leaving the tab.
+setInterval(()=>{ if(currentScreen==='savecode') refreshSaveCodeBox(); }, 3000);
 
 /* ============================================================ RENDER: COLLECTION PANEL */
 function renderCollectionPanel(){
@@ -1548,6 +1567,25 @@ function openDetailModal(ham){
 document.getElementById('detailClose').addEventListener('click', ()=>document.getElementById('detailModal').classList.add('hidden'));
 document.getElementById('detailModal').addEventListener('click', e=>{ if(e.target.id==='detailModal') e.currentTarget.classList.add('hidden'); });
 
+/* ---------- Confirm modal: replaces window.confirm(), which sandboxed
+   embeds (e.g. a Google Sites "Embed code" iframe without allow-modals)
+   can silently block — confirm() then returns false with nothing ever
+   shown, making the calling button look completely broken. This modal
+   is plain DOM/CSS, so it always works regardless of iframe sandboxing. */
+let confirmResolve = null;
+function showConfirmModal(message){
+  document.getElementById('confirmMessage').textContent = message;
+  document.getElementById('confirmModal').classList.remove('hidden');
+  return new Promise(resolve=>{ confirmResolve = resolve; });
+}
+function closeConfirmModal(result){
+  document.getElementById('confirmModal').classList.add('hidden');
+  if(confirmResolve){ confirmResolve(result); confirmResolve = null; }
+}
+document.getElementById('confirmOkBtn').addEventListener('click', ()=>closeConfirmModal(true));
+document.getElementById('confirmCancelBtn').addEventListener('click', ()=>closeConfirmModal(false));
+document.getElementById('confirmModal').addEventListener('click', e=>{ if(e.target.id==='confirmModal') closeConfirmModal(false); });
+
 document.getElementById('chipRow').addEventListener('click', e=>{
   const btn = e.target.closest('.chip');
   if(!btn) return;
@@ -1615,9 +1653,10 @@ function buyShopItem(id){
   renderMarket();
   checkAchievements();
 }
-document.getElementById('ascendBtn').addEventListener('click', ()=>{
+document.getElementById('ascendBtn').addEventListener('click', async ()=>{
   if(document.getElementById('ascendBtn').disabled) return;
-  if(!confirm('Ascend now? This resets your Ham Credits and Market upgrades, but keeps your collection and achievements, and grants +5% permanent Luck forever.')) return;
+  const ok = await showConfirmModal('Ascend now? This resets your Ham Credits and Market upgrades, but keeps your collection and achievements, and grants +5% permanent Luck forever.');
+  if(!ok) return;
   state.credits = 0;
   state.shop = {luckBoost:0, fasterSpins:0, hamMagnet:0, dupBonus:0, goldenPass:state.shop.goldenPass, scanner:state.shop.scanner};
   state.prestigeLevel++;
@@ -1676,8 +1715,9 @@ document.getElementById('setSound').addEventListener('change', e=>{ state.settin
 document.getElementById('setAnimations').addEventListener('change', e=>{ state.settings.animations = e.target.checked; saveState(); });
 document.getElementById('setReducedMotion').addEventListener('change', e=>{ state.settings.reducedMotion = e.target.checked; saveState(); applySettingsToDom(); });
 document.getElementById('setBgEffects').addEventListener('change', e=>{ state.settings.bgEffects = e.target.checked; saveState(); applySettingsToDom(); });
-document.getElementById('resetBtn').addEventListener('click', ()=>{
-  if(!confirm('This will permanently erase your entire HAMGAMES RNG save: collection, credits, stats, and achievements. This cannot be undone. Continue?')) return;
+document.getElementById('resetBtn').addEventListener('click', async ()=>{
+  const ok = await showConfirmModal('This will permanently erase your entire HAMGAMES RNG save: collection, credits, stats, and achievements. This cannot be undone. Continue?');
+  if(!ok) return;
   try{ localStorage.removeItem(SAVE_KEY); }catch(e){/* storage unavailable */}
   state = defaultState();
   state.firstTime = false;
@@ -1704,10 +1744,11 @@ document.getElementById('copyCodeBtn').addEventListener('click', ()=>{
     try{ document.execCommand('copy') ? announce() : fail(); }catch(e){ fail(); }
   }
 });
-document.getElementById('loadCodeBtn').addEventListener('click', ()=>{
+document.getElementById('loadCodeBtn').addEventListener('click', async ()=>{
   const code = document.getElementById('importCodeBox').value;
-  if(!code.trim()) return;
-  if(!confirm('Load this Save Code? This will overwrite your current progress in this browser with what is stored in the code.')) return;
+  if(!code.trim()){ showEventBanner('NO CODE PASTED', 'Paste a save code into the box above first.'); return; }
+  const ok = await showConfirmModal('Load this Save Code? This will overwrite your current progress in this browser with what is stored in the code.');
+  if(!ok) return;
   if(importSaveCode(code)){
     document.getElementById('importCodeBox').value = '';
     renderAll();
