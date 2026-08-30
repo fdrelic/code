@@ -419,15 +419,24 @@ html.reduced-motion *,html.reduced-motion *::before,html.reduced-motion *::after
 }
 .danger-btn:hover{background:rgba(255,77,94,.18);}
 
-.save-code-panel{max-width:520px;margin-bottom:22px;}
+.save-code-panel{max-width:800px;margin-bottom:20px;}
 .save-code-box{
   width:100%;resize:vertical;background:var(--charcoal);border:1px solid var(--panel-border);color:var(--cream);
   border-radius:8px;padding:10px 12px;font-family:'Courier New',monospace;font-size:11px;line-height:1.5;
   word-break:break-all;
 }
 .save-code-box:focus{outline:none;border-color:var(--gold);}
-.save-code-actions{margin:10px 0 18px;}
-.save-code-import{border-top:1px dashed rgba(255,255,255,.08);padding-top:14px;}
+.save-code-actions{margin:10px 0 4px;}
+.savecode-howto{max-width:800px;margin-bottom:20px;}
+.howto-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:6px;}
+@media (max-width:680px){.howto-grid{grid-template-columns:1fr;gap:16px;}}
+.howto-step-title{font-size:11.5px;letter-spacing:1.5px;color:var(--gold-light);font-weight:800;margin-bottom:8px;}
+.howto-list{margin:0;padding-left:18px;font-size:12.5px;color:var(--cream);line-height:1.6;}
+.howto-list li{margin-bottom:6px;}
+.howto-warning{
+  margin-top:16px;padding:10px 14px;background:rgba(255,77,94,.1);border:1px solid var(--danger);
+  border-radius:8px;color:var(--danger);font-size:12px;font-weight:700;line-height:1.5;
+}
 .storage-warn{
   display:flex;align-items:center;justify-content:center;gap:12px;
   background:rgba(255,77,94,.12);border:1px solid var(--danger);color:var(--danger);
@@ -513,6 +522,7 @@ footer.foot{text-align:center;padding:20px;color:var(--dimmer);font-size:10.5px;
       <button class="nav-btn" data-screen="market">HAM MARKET</button>
       <button class="nav-btn" data-screen="achievements">ACHIEVEMENTS</button>
       <button class="nav-btn" data-screen="stats">STATS</button>
+      <button class="nav-btn" data-screen="savecode">SAVE DATA</button>
       <button class="nav-btn" data-screen="settings">SETTINGS</button>
     </nav>
     <div class="nav-stats">
@@ -523,7 +533,7 @@ footer.foot{text-align:center;padding:20px;color:var(--dimmer);font-size:10.5px;
   </header>
 
   <div id="globalStorageWarning" class="storage-warn top-banner hidden">
-    <span>⚠ AUTOSAVE MAY NOT WORK IN THIS EMBED — open <b>SETTINGS</b> to copy a Save Code and keep your progress.</span>
+    <span>⚠ AUTOSAVE MAY NOT WORK IN THIS EMBED — open <b>SAVE DATA</b> to back up your progress with a code.</span>
     <button id="dismissWarnBtn" class="warn-dismiss" aria-label="Dismiss">✕</button>
   </div>
 
@@ -613,26 +623,58 @@ footer.foot{text-align:center;padding:20px;color:var(--dimmer);font-size:10.5px;
       <div class="stats-grid" id="statsGrid"></div>
     </section>
 
-    <!-- ==================================================== SETTINGS SCREEN -->
-    <section class="screen" id="screen-settings">
-      <h2 class="screen-title">SETTINGS</h2>
-      <p class="screen-sub">Your progress autosaves to this browser when possible.</p>
+    <!-- ==================================================== SAVE DATA SCREEN -->
+    <section class="screen" id="screen-savecode">
+      <h2 class="screen-title">SAVE DATA
+        <span class="help-ic">?<span class="tip">Embedded pages (like a Google Sites page) sometimes cannot remember your progress on their own. This code is a manual backup of everything: your collection, credits, achievements, and stats.</span></span>
+      </h2>
+      <p class="screen-sub">This game may not save automatically in every browser or embed. Use this page to back up and restore your progress by hand.</p>
+
+      <div id="storageWarning" class="storage-warn hidden">⚠ Autosave could not be verified in this window. Follow the steps below before you leave this page, or your progress may be lost.</div>
+
+      <div class="panel-box savecode-howto">
+        <h3>HOW TO KEEP YOUR PROGRESS</h3>
+        <div class="howto-grid">
+          <div class="howto-col">
+            <div class="howto-step-title">① BEFORE YOU LEAVE THE PAGE</div>
+            <ol class="howto-list">
+              <li>Click <b>COPY SAVE CODE</b> below.</li>
+              <li>Paste it somewhere you will find again later — a Notes app, a text to yourself, an email, a document. Anywhere safe.</li>
+              <li><b>Do this every time before you close the tab or leave the page.</b> If the code is not saved somewhere, your progress cannot be recovered.</li>
+            </ol>
+          </div>
+          <div class="howto-col">
+            <div class="howto-step-title">② WHEN YOU COME BACK TO PLAY</div>
+            <ol class="howto-list">
+              <li>Open this <b>SAVE DATA</b> tab again.</li>
+              <li>Paste your saved code into the "Restore From A Code" box below.</li>
+              <li>Click <b>LOAD SAVE CODE</b> and confirm. Your collection, credits, and stats come right back.</li>
+            </ol>
+          </div>
+        </div>
+        <div class="howto-warning">⚠ Keep your code somewhere safe outside this page. If you lose it, that progress is gone for good — there is no other way to get it back.</div>
+      </div>
 
       <div class="panel-box save-code-panel">
-        <h3>SAVE CODE — BACKUP YOUR PROGRESS
-          <span class="help-ic">?<span class="tip">Embedded pages (like a Google Sites page) sometimes cannot remember your progress between visits. Copy this code and keep it somewhere safe. Paste it back in below, any time, on any device, to restore your entire collection, credits, and stats.</span></span>
-        </h3>
-        <div id="storageWarning" class="storage-warn hidden">⚠ Autosave could not be verified in this window. Copy your Save Code below before you leave this page, or your progress may be lost.</div>
+        <h3>YOUR SAVE CODE</h3>
         <textarea id="saveCodeBox" class="save-code-box" readonly rows="3" aria-label="Your save code"></textarea>
         <div class="save-code-actions">
           <button class="shop-buy" id="copyCodeBtn">COPY SAVE CODE</button>
         </div>
-        <div class="save-code-import">
-          <div class="sdesc2" style="margin-bottom:6px;">Have a code? Paste it here to restore a save:</div>
-          <textarea id="importCodeBox" class="save-code-box" rows="3" placeholder="Paste your save code here…" aria-label="Paste save code to restore"></textarea>
-          <button class="danger-btn" id="loadCodeBtn" style="margin-top:8px;">LOAD SAVE CODE</button>
-        </div>
       </div>
+
+      <div class="panel-box save-code-panel">
+        <h3>RESTORE FROM A CODE</h3>
+        <div class="sdesc2" style="margin-bottom:8px;">Paste a previously saved code here to restore that progress:</div>
+        <textarea id="importCodeBox" class="save-code-box" rows="3" placeholder="Paste your save code here…" aria-label="Paste save code to restore"></textarea>
+        <button class="danger-btn" id="loadCodeBtn" style="margin-top:8px;">LOAD SAVE CODE</button>
+      </div>
+    </section>
+
+    <!-- ==================================================== SETTINGS SCREEN -->
+    <section class="screen" id="screen-settings">
+      <h2 class="screen-title">SETTINGS</h2>
+      <p class="screen-sub">Your progress autosaves to this browser when possible. See the SAVE DATA tab to back it up by hand.</p>
 
       <div class="settings-list">
         <div class="setting-row">
@@ -1690,7 +1732,7 @@ function showScreen(name){
   if(name==='market') renderMarket();
   if(name==='achievements') renderAchievements();
   if(name==='stats') renderStats();
-  if(name==='settings') refreshSaveCodeBox();
+  if(name==='savecode') refreshSaveCodeBox();
 }
 document.querySelectorAll('.nav-btn').forEach(btn=>{
   btn.addEventListener('click', ()=>{ Sound.click(); showScreen(btn.getAttribute('data-screen')); });
